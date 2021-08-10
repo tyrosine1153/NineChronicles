@@ -23,6 +23,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Nekoyume.BlockChain
 {
+    using Nekoyume.Battle;
     using UniRx;
 
     /// <summary>
@@ -604,15 +605,28 @@ namespace Nekoyume.BlockChain
                                 .DoOnError(e => Debug.LogException(e));
                         });
 
+                var simulator = new StageSimulator(
+                    new LocalRandom(eval.RandomSeed),
+                    States.Instance.CurrentAvatarState,
+                    eval.Action.foods,
+                    eval.Action.worldId,
+                    eval.Action.stageId,
+                    Game.Game.instance.TableSheets.GetStageSimulatorSheets(),
+                    Game.Game.instance.TableSheets.CostumeStatSheet,
+                    2
+                );
+                simulator.SimulateV3();
+                var log = simulator.Log;
+
                 if (Widget.Find<LoadingScreen>().IsActive())
                 {
                     if (Widget.Find<QuestPreparation>().IsActive())
                     {
-                        Widget.Find<QuestPreparation>().GoToStage(eval.Action.Result);
+                        Widget.Find<QuestPreparation>().GoToStage(log);
                     }
                     else if (Widget.Find<Menu>().IsActive())
                     {
-                        Widget.Find<Menu>().GoToStage(eval.Action.Result);
+                        Widget.Find<Menu>().GoToStage(log);
                     }
                 }
                 else if (Widget.Find<StageLoadingScreen>().IsActive() &&
@@ -1036,6 +1050,16 @@ namespace Nekoyume.BlockChain
             }
 
             return null;
+        }
+
+        private class LocalRandom : System.Random, IRandom
+        {
+            public LocalRandom(int Seed)
+                : base(Seed)
+            {
+            }
+
+            public int Seed => throw new NotImplementedException();
         }
     }
 }
