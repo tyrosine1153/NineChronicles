@@ -260,10 +260,10 @@ namespace Nekoyume.UI
             UpdateView(isBoosted);
             HelpTooltip.HelpMe(100006, true);
 
-            if (!model.IsClear)
-            {
-                StartCoroutine(OnClickRepeat());
-            }
+//            if (!model.IsClear)
+//            {
+//                StartCoroutine(OnClickRepeat());
+//            }
         }
 
         public override void Close(bool ignoreCloseAnimation = false)
