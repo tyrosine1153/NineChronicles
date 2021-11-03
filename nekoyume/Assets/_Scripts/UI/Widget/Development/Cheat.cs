@@ -217,12 +217,11 @@ namespace Nekoyume
             CloseWidget = null;
         }
 
-#if UNITY_EDITOR
         protected override void Update()
         {
             UpdateInput();
         }
-#endif
+
         public override void Show(bool ignoreShowAnimation = false)
         {
             _modal.gameObject.SetActive(true);
