@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
 using Bencodex.Types;
+using Lib9c.Model.Order;
+using MessagePack;
+using MessagePack.Resolvers;
 #if !UNITY_EDITOR
 using Libplanet;
 using Libplanet.Crypto;
@@ -130,6 +133,12 @@ namespace Nekoyume.Game
             States = new States();
             LocalLayer = new LocalLayer();
             MainCanvas.instance.InitializeIntro();
+            var resolver = MessagePack.Resolvers.CompositeResolver.Create(
+                AddressResolver.Instance,
+                StandardResolver.Instance
+            );
+            var options = MessagePackSerializerOptions.Standard.WithResolver(resolver);
+            MessagePackSerializer.DefaultOptions = options;
         }
 
         private IEnumerator Start()
