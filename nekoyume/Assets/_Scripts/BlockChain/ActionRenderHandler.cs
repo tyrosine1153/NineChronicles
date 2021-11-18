@@ -936,7 +936,7 @@ namespace Nekoyume.BlockChain
 
 
                 Console.WriteLine($"1. {States.Instance.CurrentAvatarState.name}");
-                Console.WriteLine($"2. {eval.Action.AvatarState.name}");
+                Console.WriteLine($"2. {eval.Action.EnemyAvatarState.name}");
                 Console.WriteLine($"3. {eval.Action.consumableIds.Count}");
                 Console.WriteLine($"4. {Game.Game.instance.TableSheets.GetRankingSimulatorSheets().ToString()}");
                 Console.WriteLine($"5. {eval.Action.ArenaInfo.AvatarName}");
@@ -946,7 +946,7 @@ namespace Nekoyume.BlockChain
                 var simulator = new RankingSimulator(
                     new LocalRandom(eval.RandomSeed),
                     States.Instance.CurrentAvatarState,
-                    eval.Action.AvatarState,
+                    eval.Action.EnemyAvatarState,
                     eval.Action.consumableIds,
                     Game.Game.instance.TableSheets.GetRankingSimulatorSheets(),
                     999999,
