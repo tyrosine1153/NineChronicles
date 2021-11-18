@@ -934,6 +934,15 @@ namespace Nekoyume.BlockChain
                                 .DoOnError(e => Debug.LogException(e));
                         });
 
+
+                Console.WriteLine($"1. {States.Instance.CurrentAvatarState.name}");
+                Console.WriteLine($"2. {eval.Action.AvatarState.name}");
+                Console.WriteLine($"3. {eval.Action.consumableIds.Count}");
+                Console.WriteLine($"4. {Game.Game.instance.TableSheets.GetRankingSimulatorSheets().ToString()}");
+                Console.WriteLine($"5. {eval.Action.ArenaInfo.AvatarName}");
+                Console.WriteLine($"6. {eval.Action.EnemyInfo.AvatarName}");
+                Console.WriteLine($"7. {Game.Game.instance.TableSheets.CostumeStatSheet.Count}");
+
                 var simulator = new RankingSimulator(
                     new LocalRandom(eval.RandomSeed),
                     States.Instance.CurrentAvatarState,
@@ -948,6 +957,10 @@ namespace Nekoyume.BlockChain
                 simulator.Simulate();
                 var log = simulator.Log;
 
+                Console.Write(
+                    $"*****RankingBattle Result: {eval.Action.Result.score}, {eval.Action.Result.result}, {eval.Action.Result.Count}");
+                Console.Write(
+                    $"*****RankingSimulator Log: {log.score}, {log.result}, {log.Count}");
                 if (Widget.Find<ArenaBattleLoadingScreen>().IsActive())
                 {
                     Widget.Find<RankingBoard>().GoToStage(log);
