@@ -25,7 +25,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Nekoyume.BlockChain
 {
-    
+
     using UniRx;
 
     /// <summary>
@@ -934,9 +934,23 @@ namespace Nekoyume.BlockChain
                                 .DoOnError(e => Debug.LogException(e));
                         });
 
+                var simulator = new RankingSimulator(
+                    new LocalRandom(eval.RandomSeed),
+                    States.Instance.CurrentAvatarState,
+                    eval.Action.AvatarState,
+                    eval.Action.consumableIds,
+                    Game.Game.instance.TableSheets.GetRankingSimulatorSheets(),
+                    999999,
+                    eval.Action.ArenaInfo,
+                    eval.Action.EnemyInfo,
+                    Game.Game.instance.TableSheets.CostumeStatSheet
+                );
+                simulator.Simulate();
+                var log = simulator.Log;
+
                 if (Widget.Find<ArenaBattleLoadingScreen>().IsActive())
                 {
-                    Widget.Find<RankingBoard>().GoToStage(eval.Action.Result);
+                    Widget.Find<RankingBoard>().GoToStage(log);
                 }
             }
             else
