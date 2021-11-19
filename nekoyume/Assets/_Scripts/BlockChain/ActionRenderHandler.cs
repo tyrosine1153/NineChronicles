@@ -934,31 +934,31 @@ namespace Nekoyume.BlockChain
                                 .DoOnError(e => Debug.LogException(e));
                         });
 
-
+                var enemyAvatarState = new AvatarState((Dictionary)eval.Action.EnemyAvatarState);
+                var arenaInfo = new ArenaInfo((Dictionary)eval.Action.ArenaInfo);
+                var enemyInfo = new ArenaInfo((Dictionary)eval.Action.EnemyArenaInfo);
                 Console.WriteLine($"1. {States.Instance.CurrentAvatarState.name}");
-                Console.WriteLine($"2. {eval.Action.EnemyAvatarState.name}");
+                Console.WriteLine($"2. {enemyAvatarState.name}");
                 Console.WriteLine($"3. {eval.Action.consumableIds.Count}");
                 Console.WriteLine($"4. {Game.Game.instance.TableSheets.GetRankingSimulatorSheets().ToString()}");
-                Console.WriteLine($"5. {eval.Action.ArenaInfo.AvatarName}");
-                Console.WriteLine($"6. {eval.Action.EnemyInfo.AvatarName}");
+                Console.WriteLine($"5. {arenaInfo.AvatarName}");
+                Console.WriteLine($"6. {enemyInfo.AvatarName}");
                 Console.WriteLine($"7. {Game.Game.instance.TableSheets.CostumeStatSheet.Count}");
 
                 var simulator = new RankingSimulator(
                     new LocalRandom(eval.RandomSeed),
                     States.Instance.CurrentAvatarState,
-                    eval.Action.EnemyAvatarState,
+                    enemyAvatarState,
                     eval.Action.consumableIds,
                     Game.Game.instance.TableSheets.GetRankingSimulatorSheets(),
                     999999,
-                    eval.Action.ArenaInfo,
-                    eval.Action.EnemyInfo,
+                    arenaInfo,
+                    enemyInfo,
                     Game.Game.instance.TableSheets.CostumeStatSheet
                 );
                 simulator.Simulate();
                 var log = simulator.Log;
 
-                Console.Write(
-                    $"*****RankingBattle Result: {eval.Action.Result.score}, {eval.Action.Result.result}, {eval.Action.Result.Count}");
                 Console.Write(
                     $"*****RankingSimulator Log: {log.score}, {log.result}, {log.Count}");
                 if (Widget.Find<ArenaBattleLoadingScreen>().IsActive())
