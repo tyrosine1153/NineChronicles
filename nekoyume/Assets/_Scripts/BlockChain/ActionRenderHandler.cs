@@ -655,7 +655,11 @@ namespace Nekoyume.BlockChain
                 return;
             }
 
-            var errors = eval.Action.errors.ToList();
+            var errorList = (List)eval.Extra[nameof(Action.Buy.errors)];
+            List<(Guid orderId, int errorCode)> errors = errorList
+                .Cast<List>()
+                .Select(t => (t[0].ToGuid(), t[1].ToInteger()))
+                .ToList();
             var purchaseInfos = eval.Action.purchaseInfos;
             if (eval.Action.buyerAvatarAddress == avatarAddress) // buyer
             {
@@ -933,10 +937,12 @@ namespace Nekoyume.BlockChain
                                 // ReSharper disable once ConvertClosureToMethodGroup
                                 .DoOnError(e => Debug.LogException(e));
                         });
-
-                var enemyAvatarState = new AvatarState((Dictionary)eval.Action.EnemyAvatarState);
-                var arenaInfo = new ArenaInfo((Dictionary)eval.Action.ArenaInfo);
-                var enemyInfo = new ArenaInfo((Dictionary)eval.Action.EnemyArenaInfo);
+                var ead = (Dictionary)eval.Extra[nameof(Action.RankingBattle.EnemyAvatarState)];
+                var eid = (Dictionary)eval.Extra[nameof(Action.RankingBattle.EnemyArenaInfo)];
+                var aid = (Dictionary)eval.Extra[nameof(Action.RankingBattle.ArenaInfo)];
+                var enemyAvatarState = new AvatarState(ead);
+                var arenaInfo = new ArenaInfo(aid);
+                var enemyInfo = new ArenaInfo(eid);
                 Console.WriteLine($"1. {States.Instance.CurrentAvatarState.name}");
                 Console.WriteLine($"2. {enemyAvatarState.name}");
                 Console.WriteLine($"3. {eval.Action.consumableIds.Count}");

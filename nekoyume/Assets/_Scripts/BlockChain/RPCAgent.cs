@@ -327,7 +327,7 @@ namespace Nekoyume.BlockChain
 
         public void OnRender(byte[] evaluation)
         {
-            var ev = MessagePackSerializer.Deserialize<ActionEvaluation<ActionBase>>(evaluation);
+            var ev = MessagePackSerializer.Deserialize<NCActionEvaluation>(evaluation).ToActionEvaluation();
             ActionRenderer.ActionRenderSubject.OnNext(ev);
         }
 
