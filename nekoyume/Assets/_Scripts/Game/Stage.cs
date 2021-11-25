@@ -208,14 +208,7 @@ namespace Nekoyume.Game
                         moveTo,
                         Random.Range(4.0f, 5.0f)));
                     seq.Play().SetDelay(2.6f).SetLoops(-1);
-                    if (!ReferenceEquals(anim, null) && !anim.Target.activeSelf)
                     {
-                        anim.Target.SetActive(true);
-                        var skeleton =
-                            anim.Target.GetComponentInChildren<SkeletonAnimation>().skeleton;
-                        skeleton.A = 0.0f;
-                        DOTween.To(() => skeleton.A, x => skeleton.A = x, 1.0f, 1.0f);
-                        player.SpineController.Appear();
                     }
 
                     selectedPlayer = players[i];
@@ -225,10 +218,7 @@ namespace Nekoyume.Game
                     playerObject.transform.DOScale(0.9f, 1.0f);
                     playerObject.transform.DOMoveY(-3.6f, 2.0f);
 
-                    if (!ReferenceEquals(anim, null) && anim.Target.activeSelf)
                     {
-                        anim.Target.SetActive(true);
-                        player.SpineController.Disappear();
                     }
                 }
             }
@@ -495,7 +485,6 @@ namespace Nekoyume.Game
                     {
                         if (enemy.isActiveAndEnabled)
                         {
-                            enemy.Animator.Win();
                         }
                     }
                     yield return new WaitForSeconds(1f);
@@ -516,7 +505,6 @@ namespace Nekoyume.Game
             if (log.result == BattleLog.Result.Win)
             {
                 _stageRunningPlayer.DisableHUD();
-                _stageRunningPlayer.Animator.Win(log.clearedWaveNumber);
                 _stageRunningPlayer.ShowSpeech("PLAYER_WIN");
                 yield return new WaitForSeconds(2.2f);
                 objectPool.ReleaseExcept(ReleaseWhiteList);
@@ -529,7 +517,6 @@ namespace Nekoyume.Game
             {
                 if (log.result == BattleLog.Result.TimeOver)
                 {
-                    _stageRunningPlayer.Animator.TurnOver();
                     yield return new WaitForSeconds(2f);
                 }
                 ReleaseWhiteList.Remove(_stageRunningPlayer.gameObject);
@@ -647,7 +634,6 @@ namespace Nekoyume.Game
                 : GetComponentInChildren<Character.EnemyPlayer>();
 
             yield return new WaitForSeconds(0.75f);
-            playerCharacter.Animator.Win();
             playerCharacter.ShowSpeech("PLAYER_WIN");
             Widget.Find<UI.Battle>().Close();
             Widget.Find<Status>().Close();

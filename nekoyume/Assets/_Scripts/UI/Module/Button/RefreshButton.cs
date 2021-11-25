@@ -39,7 +39,7 @@ namespace Nekoyume.UI.Module
             Animator = new NPCAnimator(this) {TimeScale = AnimatorTimeScale};
             Animator.OnEvent.Subscribe(OnAnimatorEvent);
         }
-        
+
         private void Start()
         {
             UpdateAnimatorTarget();
@@ -67,13 +67,8 @@ namespace Nekoyume.UI.Module
             SpineController = target.GetComponentInChildren<NPCSpineController>();
             if (SpineController is null)
             {
-                throw new NotFoundComponentException<NPCSpineController>();
             }
 
-            TouchHandler.SetCollider(
-                SpineController.BoxCollider,
-                target.transform.localPosition,
-                target.transform.localScale);
         }
 
         public void PlayAnimation(NPCAnimation.Type type)
@@ -89,7 +84,6 @@ namespace Nekoyume.UI.Module
                 return;
             }
 
-            ResetAnimatorTarget(target.gameObject);
         }
 
         protected void OnAnimatorEvent(string eventName)
@@ -107,13 +101,6 @@ namespace Nekoyume.UI.Module
                 }
                 case "emotion":
                 {
-                    var bodyBone = SpineController.SkeletonAnimation.skeleton.FindBone("body_01");
-                    var spineControllerTransform = SpineController.transform;
-                    var position = bodyBone?.GetWorldPosition(spineControllerTransform)
-                                   ?? spineControllerTransform.position;
-                    VFXController.instance.CreateAndChaseCam<EmotionHeartVFX>(
-                        position,
-                        new Vector3(0f, 0f, -10f));
                     break;
                 }
             }

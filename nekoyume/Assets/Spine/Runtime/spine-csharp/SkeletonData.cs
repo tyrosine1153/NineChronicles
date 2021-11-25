@@ -1,37 +1,36 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 using System;
 
 namespace Spine {
-	
+
 	/// <summary>Stores the setup pose and all of the stateless data for a skeleton.</summary>
 	public class SkeletonData {
 		internal string name;
@@ -44,13 +43,15 @@ namespace Spine {
 		internal ExposedList<IkConstraintData> ikConstraints = new ExposedList<IkConstraintData>();
 		internal ExposedList<TransformConstraintData> transformConstraints = new ExposedList<TransformConstraintData>();
 		internal ExposedList<PathConstraintData> pathConstraints = new ExposedList<PathConstraintData>();
-		internal float width, height;
+		internal float x, y, width, height;
 		internal string version, hash;
 
 		// Nonessential.
 		internal float fps;
 		internal string imagesPath, audioPath;
 
+		///<summary>The skeleton's name, which by default is the name of the skeleton data file when possible, or null when a name hasn't been
+		///set.</summary>
 		public string Name { get { return name; } set { name = value; } }
 
 		/// <summary>The skeleton's bones, sorted parent first. The root bone is always the first bone.</summary>
@@ -74,20 +75,24 @@ namespace Spine {
 		public ExposedList<TransformConstraintData> TransformConstraints { get { return transformConstraints; } set { transformConstraints = value; } }
 		public ExposedList<PathConstraintData> PathConstraints { get { return pathConstraints; } set { pathConstraints = value; } }
 
+		public float X { get { return x; } set { x = value; } }
+		public float Y { get { return y; } set { y = value; } }
 		public float Width { get { return width; } set { width = value; } }
 		public float Height { get { return height; } set { height = value; } }
 		/// <summary>The Spine version used to export this data, or null.</summary>
 		public string Version { get { return version; } set { version = value; } }
+
+		///<summary>The skeleton data hash. This value will change if any of the skeleton data has changed.
+		///May be null.</summary>
 		public string Hash { get { return hash; } set { hash = value; } }
 
-		/// <summary>The path to the images directory as defined in Spine. Available only when nonessential data was exported. May be null</summary>
 		public string ImagesPath { get { return imagesPath; } set { imagesPath = value; } }
-		
-		/// <summary>The path to the audio directory defined in Spine. Available only when nonessential data was exported. May be null.</summary>
+
+		/// <summary> The path to the audio directory as defined in Spine. Available only when nonessential data was exported.
+		/// May be null.</summary>
 		public string AudioPath { get { return audioPath; } set { audioPath = value; } }
 
-		/// <summary>
-		/// The dopesheet FPS in Spine. Available only when nonessential data was exported.</summary>
+		/// <summary>The dopesheet FPS in Spine, or zero if nonessential data was not exported.</summary>
 		public float Fps { get { return fps; } set { fps = value; } }
 
 		// --- Bones.
@@ -98,23 +103,12 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public BoneData FindBone (string boneName) {
 			if (boneName == null) throw new ArgumentNullException("boneName", "boneName cannot be null.");
-			var bones = this.bones;
-			var bonesItems = bones.Items;
-			for (int i = 0, n = bones.Count; i < n; i++) {
-				BoneData bone = bonesItems[i];
+			var bones = this.bones.Items;
+			for (int i = 0, n = this.bones.Count; i < n; i++) {
+				BoneData bone = bones[i];
 				if (bone.name == boneName) return bone;
 			}
 			return null;
-		}
-
-		/// <returns>-1 if the bone was not found.</returns>
-		public int FindBoneIndex (string boneName) {
-			if (boneName == null) throw new ArgumentNullException("boneName", "boneName cannot be null.");
-			var bones = this.bones;
-			var bonesItems = bones.Items;
-			for (int i = 0, n = bones.Count; i < n; i++)
-				if (bonesItems[i].name == boneName) return i;
-			return -1;
 		}
 
 		// --- Slots.
@@ -122,21 +116,12 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public SlotData FindSlot (string slotName) {
 			if (slotName == null) throw new ArgumentNullException("slotName", "slotName cannot be null.");
-			ExposedList<SlotData> slots = this.slots;
-			for (int i = 0, n = slots.Count; i < n; i++) {
-				SlotData slot = slots.Items[i];
+			var slots = this.slots.Items;
+			for (int i = 0, n = this.slots.Count; i < n; i++) {
+				SlotData slot = slots[i];
 				if (slot.name == slotName) return slot;
 			}
 			return null;
-		}
-
-		/// <returns>-1 if the slot was not found.</returns>
-		public int FindSlotIndex (string slotName) {
-			if (slotName == null) throw new ArgumentNullException("slotName", "slotName cannot be null.");
-			ExposedList<SlotData> slots = this.slots;
-			for (int i = 0, n = slots.Count; i < n; i++)
-				if (slots.Items[i].name == slotName) return i;
-			return -1;
 		}
 
 		// --- Skins.
@@ -164,9 +149,9 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public Animation FindAnimation (string animationName) {
 			if (animationName == null) throw new ArgumentNullException("animationName", "animationName cannot be null.");
-			ExposedList<Animation> animations = this.animations;
-			for (int i = 0, n = animations.Count; i < n; i++) {
-				Animation animation = animations.Items[i];
+			var animations = this.animations.Items;
+			for (int i = 0, n = this.animations.Count; i < n; i++) {
+				Animation animation = animations[i];
 				if (animation.name == animationName) return animation;
 			}
 			return null;
@@ -177,9 +162,9 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public IkConstraintData FindIkConstraint (string constraintName) {
 			if (constraintName == null) throw new ArgumentNullException("constraintName", "constraintName cannot be null.");
-			ExposedList<IkConstraintData> ikConstraints = this.ikConstraints;
-			for (int i = 0, n = ikConstraints.Count; i < n; i++) {
-				IkConstraintData ikConstraint = ikConstraints.Items[i];
+			var ikConstraints = this.ikConstraints.Items;
+			for (int i = 0, n = this.ikConstraints.Count; i < n; i++) {
+				IkConstraintData ikConstraint = ikConstraints[i];
 				if (ikConstraint.name == constraintName) return ikConstraint;
 			}
 			return null;
@@ -190,9 +175,9 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public TransformConstraintData FindTransformConstraint (string constraintName) {
 			if (constraintName == null) throw new ArgumentNullException("constraintName", "constraintName cannot be null.");
-			ExposedList<TransformConstraintData> transformConstraints = this.transformConstraints;
-			for (int i = 0, n = transformConstraints.Count; i < n; i++) {
-				TransformConstraintData transformConstraint = transformConstraints.Items[i];
+			var transformConstraints = this.transformConstraints.Items;
+			for (int i = 0, n = this.transformConstraints.Count; i < n; i++) {
+				TransformConstraintData transformConstraint = transformConstraints[i];
 				if (transformConstraint.name == constraintName) return transformConstraint;
 			}
 			return null;
@@ -203,21 +188,12 @@ namespace Spine {
 		/// <returns>May be null.</returns>
 		public PathConstraintData FindPathConstraint (string constraintName) {
 			if (constraintName == null) throw new ArgumentNullException("constraintName", "constraintName cannot be null.");
-			ExposedList<PathConstraintData> pathConstraints = this.pathConstraints;
-			for (int i = 0, n = pathConstraints.Count; i < n; i++) {
-				PathConstraintData constraint = pathConstraints.Items[i];
+			var pathConstraints = this.pathConstraints.Items;
+			for (int i = 0, n = this.pathConstraints.Count; i < n; i++) {
+				PathConstraintData constraint = pathConstraints[i];
 				if (constraint.name.Equals(constraintName)) return constraint;
 			}
 			return null;
-		}
-
-		/// <returns>-1 if the path constraint was not found.</returns>
-		public int FindPathConstraintIndex (string pathConstraintName) {
-			if (pathConstraintName == null) throw new ArgumentNullException("pathConstraintName", "pathConstraintName cannot be null.");
-			ExposedList<PathConstraintData> pathConstraints = this.pathConstraints;
-			for (int i = 0, n = pathConstraints.Count; i < n; i++)
-				if (pathConstraints.Items[i].name.Equals(pathConstraintName)) return i;
-			return -1;
 		}
 
 		// ---

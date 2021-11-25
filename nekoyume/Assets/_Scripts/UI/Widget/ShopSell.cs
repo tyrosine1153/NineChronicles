@@ -158,7 +158,6 @@ namespace Nekoyume.UI
             _npc = go.GetComponent<NPC>();
             _npc.GetComponent<SortingGroup>().sortingLayerName = LayerType.InGameBackground.ToLayerName();
             _npc.GetComponent<SortingGroup>().sortingOrder = 3;
-            _npc.SpineController.Appear();
             go.SetActive(true);
 
             ShowSpeech("SPEECH_SHOP_GREETING_", CharacterAnimation.Type.Greeting);

@@ -1,31 +1,30 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 using System;
@@ -33,7 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-using Spine;
+using CompatibilityProblemInfo = Spine.Unity.SkeletonDataCompatibility.CompatibilityProblemInfo;
 
 namespace Spine.Unity {
 
@@ -42,13 +41,16 @@ namespace Spine.Unity {
 		#region Inspector
 		public AtlasAssetBase[] atlasAssets = new AtlasAssetBase[0];
 
-		#if SPINE_TK2D
+#if SPINE_TK2D
 		public tk2dSpriteCollectionData spriteCollection;
 		public float scale = 1f;
-		#else
+#else
 		public float scale = 0.01f;
-		#endif
+#endif
 		public TextAsset skeletonJSON;
+
+		public bool isUpgradingBlendModeMaterials = false;
+		public BlendModeMaterials blendModeMaterials = new BlendModeMaterials();
 
 		[Tooltip("Use SkeletonDataModifierAssets to apply changes to the SkeletonData after being loaded, such as apply blend mode Materials to Attachments under slots with special blend modes.")]
 		public List<SkeletonDataModifierAsset> skeletonDataModifiers = new List<SkeletonDataModifierAsset>();
@@ -75,7 +77,7 @@ namespace Spine.Unity {
 		/// <summary>
 		/// Creates a runtime SkeletonDataAsset.</summary>
 		public static SkeletonDataAsset CreateRuntimeInstance (TextAsset skeletonDataFile, AtlasAssetBase atlasAsset, bool initialize, float scale = 0.01f) {
-			return CreateRuntimeInstance(skeletonDataFile, new [] {atlasAsset}, initialize, scale);
+			return CreateRuntimeInstance(skeletonDataFile, new[] { atlasAsset }, initialize, scale);
 		}
 
 		/// <summary>
@@ -117,24 +119,24 @@ namespace Spine.Unity {
 			}
 
 			// Disabled to support attachmentless/skinless SkeletonData.
-//			if (atlasAssets == null) {
-//				atlasAssets = new AtlasAsset[0];
-//				if (!quiet)
-//					Debug.LogError("Atlas not set for SkeletonData asset: " + name, this);
-//				Clear();
-//				return null;
-//			}
-//			#if !SPINE_TK2D
-//			if (atlasAssets.Length == 0) {
-//				Clear();
-//				return null;
-//			}
-//			#else
-//			if (atlasAssets.Length == 0 && spriteCollection == null) {
-//				Clear();
-//				return null;
-//			}
-//			#endif
+			//			if (atlasAssets == null) {
+			//				atlasAssets = new AtlasAsset[0];
+			//				if (!quiet)
+			//					Debug.LogError("Atlas not set for SkeletonData asset: " + name, this);
+			//				Clear();
+			//				return null;
+			//			}
+			//			#if !SPINE_TK2D
+			//			if (atlasAssets.Length == 0) {
+			//				Clear();
+			//				return null;
+			//			}
+			//			#else
+			//			if (atlasAssets.Length == 0 && spriteCollection == null) {
+			//				Clear();
+			//				return null;
+			//			}
+			//			#endif
 
 			if (skeletonData != null)
 				return skeletonData;
@@ -143,10 +145,10 @@ namespace Spine.Unity {
 			float skeletonDataScale;
 			Atlas[] atlasArray = this.GetAtlasArray();
 
-			#if !SPINE_TK2D
+#if !SPINE_TK2D
 			attachmentLoader = (atlasArray.Length == 0) ? (AttachmentLoader)new RegionlessAttachmentLoader() : (AttachmentLoader)new AtlasAttachmentLoader(atlasArray);
 			skeletonDataScale = scale;
-			#else
+#else
 			if (spriteCollection != null) {
 				attachmentLoader = new Spine.Unity.TK2D.SpriteCollectionAttachmentLoader(spriteCollection);
 				skeletonDataScale = (1.0f / (spriteCollection.invOrthoSize * spriteCollection.halfTargetHeight) * scale);
@@ -159,29 +161,50 @@ namespace Spine.Unity {
 				attachmentLoader = new AtlasAttachmentLoader(atlasArray);
 				skeletonDataScale = scale;
 			}
-			#endif
+#endif
 
-			bool isBinary = skeletonJSON.name.ToLower().Contains(".skel");
-			SkeletonData loadedSkeletonData;
+			bool hasBinaryExtension = skeletonJSON.name.ToLower().Contains(".skel");
+			SkeletonData loadedSkeletonData = null;
 
 			try {
-				if (isBinary)
+				if (hasBinaryExtension)
 					loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.bytes, attachmentLoader, skeletonDataScale);
 				else
 					loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.text, attachmentLoader, skeletonDataScale);
-
 			} catch (Exception ex) {
 				if (!quiet)
-					Debug.LogError("Error reading skeleton JSON file for SkeletonData asset: " + name + "\n" + ex.Message + "\n" + ex.StackTrace, this);
-				return null;
-
+					Debug.LogError("Error reading skeleton JSON file for SkeletonData asset: " + name + "\n" + ex.Message + "\n" + ex.StackTrace, skeletonJSON);
 			}
 
-			if (skeletonDataModifiers != null) {
-				foreach (var m in skeletonDataModifiers) {
-					if (m != null) m.Apply(loadedSkeletonData);
+#if UNITY_EDITOR
+			if (loadedSkeletonData == null && !quiet && skeletonJSON != null) {
+				string problemDescription = null;
+				bool isSpineSkeletonData;
+				SkeletonDataCompatibility.VersionInfo fileVersion = SkeletonDataCompatibility.GetVersionInfo(skeletonJSON, out isSpineSkeletonData, ref problemDescription);
+				if (problemDescription != null) {
+					if (!quiet)
+						Debug.LogError(problemDescription, skeletonJSON);
+					return null;
+				}
+				CompatibilityProblemInfo compatibilityProblemInfo = SkeletonDataCompatibility.GetCompatibilityProblemInfo(fileVersion);
+				if (compatibilityProblemInfo != null) {
+					SkeletonDataCompatibility.DisplayCompatibilityProblem(compatibilityProblemInfo.DescriptionString(), skeletonJSON);
+					return null;
 				}
 			}
+#endif
+			if (loadedSkeletonData == null)
+				return null;
+
+			if (skeletonDataModifiers != null) {
+				foreach (var modifier in skeletonDataModifiers) {
+					if (modifier != null && !(isUpgradingBlendModeMaterials && modifier is BlendModeMaterialsAsset)) {
+						modifier.Apply(loadedSkeletonData);
+					}
+				}
+			}
+			if (!isUpgradingBlendModeMaterials)
+				blendModeMaterials.ApplyMaterials(loadedSkeletonData);
 
 			this.InitializeWithData(loadedSkeletonData);
 
@@ -196,7 +219,7 @@ namespace Spine.Unity {
 
 		public void FillStateData () {
 			if (stateData != null) {
-				stateData.defaultMix = defaultMix;
+				stateData.DefaultMix = defaultMix;
 
 				for (int i = 0, n = fromAnimation.Length; i < n; i++) {
 					if (fromAnimation[i].Length == 0 || toAnimation[i].Length == 0)
@@ -234,7 +257,6 @@ namespace Spine.Unity {
 			};
 			return json.ReadSkeletonData(input);
 		}
-
 	}
 
 }

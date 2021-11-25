@@ -367,7 +367,6 @@ namespace Nekoyume.UI
                 _npc = go.GetComponent<NPC>();
             }
 
-            _npc.SpineController.Appear(ignoreShowAnimation ? 0f : .3f);
             _npc.PlayAnimation(animationType);
         }
 
@@ -378,14 +377,6 @@ namespace Nekoyume.UI
                 return;
             }
 
-            _npc.SpineController.Disappear(
-                ignoreCloseAnimation ? 0f : .3f,
-                true,
-                () =>
-                {
-                    _npc.gameObject.SetActive(false);
-                        _npc = null;
-                });
         }
 
         private void PlayEffects()

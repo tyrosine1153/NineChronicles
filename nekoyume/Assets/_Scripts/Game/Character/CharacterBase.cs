@@ -72,8 +72,8 @@ namespace Nekoyume.Game.Character
         protected SpeechBubble SpeechBubble { get; set; }
 
         public CharacterAnimator Animator { get; protected set; }
-        protected Vector3 HUDOffset => Animator.GetHUDPosition();
-        protected Vector3 HealOffset => Animator.HealPosition;
+        protected Vector3 HUDOffset => Vector3.back;
+        protected Vector3 HealOffset => Vector3.back;
         protected bool AttackEndCalled { get; set; }
 
         private bool _forceQuit;
@@ -151,7 +151,6 @@ namespace Nekoyume.Game.Character
             yield return new WaitWhile(() => actions.Any());
             OnDeadStart();
             StopRun();
-            Animator.Die();
             yield return new WaitForSeconds(.2f);
             DisableHUD();
             yield return new WaitForSeconds(.8f);
@@ -269,7 +268,6 @@ namespace Nekoyume.Game.Character
             }
 
             CurrentHP -= dmg;
-            Animator.Hit();
 
             PopUpDmg(position, force, info, isConsiderElementalType);
         }
@@ -281,7 +279,6 @@ namespace Nekoyume.Game.Character
 
         protected virtual void OnDeadEnd()
         {
-            Animator.Idle();
             gameObject.SetActive(false);
             actions.Clear();
         }
@@ -328,11 +325,6 @@ namespace Nekoyume.Game.Character
                 throw new NullReferenceException($"{nameof(GetAnimatorHitPointBoxCollider)}() returns null.");
             }
 
-            var scale = Animator.Target.transform.localScale;
-            var center = source.center;
-            var size = source.size;
-            HitPointBoxCollider.center = new Vector3(center.x * scale.x, center.y * scale.y, center.z * scale.z);
-            HitPointBoxCollider.size = new Vector3(size.x * scale.x, size.y * scale.y, size.z * scale.z);
         }
 
         protected abstract BoxCollider GetAnimatorHitPointBoxCollider();
@@ -372,7 +364,6 @@ namespace Nekoyume.Game.Character
 
         protected virtual void ExecuteRun()
         {
-            Animator.Run();
 
             Vector2 position = transform.position;
             position.x += Time.deltaTime * RunSpeed;
@@ -382,7 +373,6 @@ namespace Nekoyume.Game.Character
         public void StopRun()
         {
             RunSpeed = 0.0f;
-            Animator.StopRun();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -549,11 +539,6 @@ namespace Nekoyume.Game.Character
                 PreAnimationForTheKindOfAttack();
                 if (isCritical)
                 {
-                    Animator.CriticalAttack();
-                }
-                else
-                {
-                    Animator.Attack();
                 }
                 _forceQuit = false;
                 var coroutine = StartCoroutine(CoTimeOut());
@@ -575,11 +560,9 @@ namespace Nekoyume.Game.Character
                 PreAnimationForTheKindOfAttack();
                 if (isCritical)
                 {
-                    Animator.CriticalAttack();
                 }
                 else
                 {
-                    Animator.CastAttack();
                 }
                 _forceQuit = false;
                 var coroutine = StartCoroutine(CoTimeOut());
@@ -621,7 +604,6 @@ namespace Nekoyume.Game.Character
 
             var sfxCode = AudioController.GetElementalCastingSFX(info.ElementalType);
             AudioController.instance.PlaySfx(sfxCode);
-            Animator.Cast();
             var pos = transform.position;
             var effect = Game.instance.Stage.SkillController.Get(pos, info.ElementalType);
             effect.Play();
@@ -636,7 +618,6 @@ namespace Nekoyume.Game.Character
 
             var sfxCode = AudioController.GetElementalCastingSFX(info.ElementalType);
             AudioController.instance.PlaySfx(sfxCode);
-            Animator.Cast();
             var pos = transform.position;
             var effect = Game.instance.Stage.BuffController.Get(pos, info.Buff);
             effect.Play();
@@ -842,7 +823,6 @@ namespace Nekoyume.Game.Character
                 ProcessHeal(target, info);
             }
 
-            Animator.Idle();
         }
 
         public IEnumerator CoBuff(IReadOnlyList<Model.BattleStatus.Skill.SkillInfo> skillInfos)
@@ -859,7 +839,6 @@ namespace Nekoyume.Game.Character
                 ProcessBuff(target, info);
             }
 
-            Animator.Idle();
         }
 
         #endregion
@@ -934,6 +913,10 @@ namespace Nekoyume.Game.Character
         {
             AttackEndCalled = false;
         }
+    }
+
+    public class CharacterAnimator
+    {
     }
 
     public class ActionParams

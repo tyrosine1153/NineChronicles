@@ -1,38 +1,37 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+using Spine;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Spine;
 
 namespace Spine.Unity {
 	/// <summary>Loads and stores a Spine atlas and list of materials.</summary>
@@ -47,7 +46,7 @@ namespace Spine.Unity {
 		public override IEnumerable<Material> Materials { get { return materials; } }
 		public override int MaterialCount { get { return materials == null ? 0 : materials.Length; } }
 		public override Material PrimaryMaterial { get { return materials[0]; } }
-		
+
 		#region Runtime Instantiation
 		/// <summary>
 		/// Creates a runtime AtlasAsset</summary>
@@ -72,8 +71,9 @@ namespace Spine.Unity {
 			string[] atlasLines = atlasString.Split('\n');
 			var pages = new List<string>();
 			for (int i = 0; i < atlasLines.Length - 1; i++) {
-				if (atlasLines[i].Trim().Length == 0)
-					pages.Add(atlasLines[i + 1].Trim().Replace(".png", ""));
+				string line = atlasLines[i].Trim();
+				if (line.EndsWith(".png"))
+					pages.Add(line.Replace(".png", ""));
 			}
 
 			// Populate Materials[] by matching texture names with page names.
@@ -124,14 +124,14 @@ namespace Spine.Unity {
 		}
 
 		/// <returns>The atlas or null if it could not be loaded.</returns>
-		public override Atlas GetAtlas () {
+		public override Atlas GetAtlas (bool onlyMetaData = false) {
 			if (atlasFile == null) {
 				Debug.LogError("Atlas file not set for atlas asset: " + name, this);
 				Clear();
 				return null;
 			}
 
-			if (materials == null || materials.Length == 0) {
+			if (!onlyMetaData && (materials == null || materials.Length == 0)) {
 				Debug.LogError("Materials not set for atlas asset: " + name, this);
 				Clear();
 				return null;
@@ -140,7 +140,12 @@ namespace Spine.Unity {
 			if (atlas != null) return atlas;
 
 			try {
-				atlas = new Atlas(new StringReader(atlasFile.text), "", new MaterialsTextureLoader(this));
+				TextureLoader loader;
+				if (!onlyMetaData)
+					loader = new MaterialsTextureLoader(this);
+				else
+					loader = new NoOpTextureLoader();
+				atlas = new Atlas(new StringReader(atlasFile.text), "", loader);
 				atlas.FlipV();
 				return atlas;
 			} catch (Exception ex) {
@@ -179,16 +184,16 @@ namespace Spine.Unity {
 				u2 = region.u2;
 				v2 = region.v2;
 
-				if (!region.rotate) {
-					uvs[0] = new Vector2(u, v2);
-					uvs[1] = new Vector2(u, v);
-					uvs[2] = new Vector2(u2, v);
-					uvs[3] = new Vector2(u2, v2);
-				} else {
+				if (region.degrees == 90) {
 					uvs[0] = new Vector2(u2, v2);
 					uvs[1] = new Vector2(u, v2);
 					uvs[2] = new Vector2(u, v);
 					uvs[3] = new Vector2(u2, v);
+				} else {
+					uvs[0] = new Vector2(u, v2);
+					uvs[1] = new Vector2(u, v);
+					uvs[2] = new Vector2(u2, v);
+					uvs[3] = new Vector2(u2, v2);
 				}
 
 				mesh.triangles = new int[0];
@@ -206,6 +211,11 @@ namespace Spine.Unity {
 
 			return mesh;
 		}
+	}
+
+	public class NoOpTextureLoader : TextureLoader {
+		public void Load (AtlasPage page, string path) { }
+		public void Unload (object texture) { }
 	}
 
 	public class MaterialsTextureLoader : TextureLoader {

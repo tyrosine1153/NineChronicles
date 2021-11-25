@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Nekoyume.Helper;
 using Spine.Unity;
-using Spine.Unity.Modules.AttachmentTools;
+using Spine.Unity.AttachmentTools;
 using UnityEngine;
 
 namespace Nekoyume.UI
@@ -27,17 +27,7 @@ namespace Nekoyume.UI
             var sprite = SpriteHelper.GetAreaAttackCutsceneSprite(armorId);
             var shader = Shader.Find("Sprites/Default");
             var material = new Material(shader);
-
-            var slotIndex = cutscene.SkeletonAnimation.skeleton.FindSlotIndex(SlotName);
-            var slot = cutscene.SkeletonAnimation.skeleton.FindSlot(SlotName);
-            var attachment = slot.Attachment.GetRemappedClone(sprite, material);
-
-
-            var clonedSkin = cutscene.SkeletonAnimation.skeleton.Data.DefaultSkin.GetClone();
-            clonedSkin.SetAttachment(slotIndex, AttachmentName, attachment);
-            cutscene.SkeletonAnimation.skeleton.SetSkin(clonedSkin);
-
-            return cutscene.SkeletonAnimation.AnimationState.Tracks.First().AnimationEnd;
+            return 0;
         }
     }
 }

@@ -162,10 +162,6 @@ namespace Nekoyume.UI
 
                         if (script.hasSkeletonAnimation)
                         {
-                            script.skeletonAnimation.skeleton.A = 1;
-                            skeletonTweener = DOTween.To(() => script.skeletonAnimation.skeleton.A,
-                                alpha => script.skeletonAnimation.skeleton.A = alpha, 0,
-                                script.imageAnimationTime);
                         }
 
                         tweener.Play();
@@ -188,10 +184,6 @@ namespace Nekoyume.UI
 
                         if (script.hasSkeletonAnimation)
                         {
-                            script.skeletonAnimation.skeleton.A = 0;
-                            skeletonTweener = DOTween.To(() => script.skeletonAnimation.skeleton.A,
-                                alpha => script.skeletonAnimation.skeleton.A = alpha, 1,
-                                script.imageAnimationTime);
                         }
 
                         tweener.Play();

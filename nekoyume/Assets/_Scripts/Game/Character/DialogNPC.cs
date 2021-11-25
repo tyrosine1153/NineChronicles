@@ -45,7 +45,6 @@ namespace Nekoyume.Game.Character
             SpineController = target.GetComponentInChildren<NPCSpineController>();
             if (SpineController is null)
             {
-                throw new NotFoundComponentException<NPCSpineController>();
             }
         }
 

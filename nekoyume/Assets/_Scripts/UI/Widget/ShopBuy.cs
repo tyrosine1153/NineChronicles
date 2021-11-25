@@ -157,7 +157,6 @@ namespace Nekoyume.UI
             var go = Game.Game.instance.Stage.npcFactory.Create(NPCId, NPCPosition,
                 LayerType.InGameBackground, 3);
             _npc = go.GetComponent<NPC>();
-            _npc.SpineController.Appear();
             go.SetActive(true);
             frontCanvas.sortingLayerName = LayerType.UI.ToLayerName();
             _npc.PlayAnimation(NPCAnimation.Type.Greeting_01);

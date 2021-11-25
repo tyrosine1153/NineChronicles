@@ -26,8 +26,6 @@ namespace Nekoyume.Game.Character
         private void Awake()
         {
             Animator = new EnemyAnimator(this);
-            Animator.OnEvent.Subscribe(OnAnimatorEvent);
-            Animator.TimeScale = 1.2f;
 
             TargetTag = Tag.Player;
         }
@@ -36,27 +34,7 @@ namespace Nekoyume.Game.Character
         {
             var spineResourcePath = $"Character/Monster/{characterId}";
 
-            if (!(Animator.Target is null))
-            {
-                var animatorTargetName = spineResourcePath.Split('/').Last();
-                if (Animator.Target.name.Contains(animatorTargetName))
-                    return;
 
-                Animator.DestroyTarget();
-            }
-
-            var origin = Resources.Load<GameObject>(spineResourcePath);
-            var go = Instantiate(origin, gameObject.transform);
-            SpineController = go.GetComponent<CharacterSpineController>();
-            Animator.ResetTarget(go);
-            if (characterId == 205007)
-            {
-                Animator.Standing();
-            }
-            else
-            {
-                Animator.Idle();
-            }
             _target = target;
         }
 
@@ -80,7 +58,6 @@ namespace Nekoyume.Game.Character
         {
             yield return StartCoroutine(CoAnimationAttack(critical));
             Prologue.PopupDmg(dmg, _target.gameObject, false, critical, ElementalType.Normal, false);
-            _target.Animator.Hit();
         }
 
         private IEnumerator CoAnimationAttack(bool isCritical)
@@ -90,11 +67,9 @@ namespace Nekoyume.Game.Character
                 AttackEndCalled = false;
                 if (isCritical)
                 {
-                    Animator.CriticalAttack();
                 }
                 else
                 {
-                    Animator.Attack();
                 }
 
                 _forceQuit = false;
@@ -130,7 +105,6 @@ namespace Nekoyume.Game.Character
             {
                 var sec = i == 0 ? 0 : i / 10f;
                 Prologue.PopupDmg(dmgMap[i], _target.gameObject, false, i == 4, elementalType, false);
-                _target.Animator.Hit();
                 yield return new WaitForSeconds(sec);
             }
         }
@@ -139,7 +113,6 @@ namespace Nekoyume.Game.Character
         {
             var sfxCode = AudioController.GetElementalCastingSFX(elementalType);
             AudioController.instance.PlaySfx(sfxCode);
-            Animator.Cast();
             var pos = transform.position;
             var effect = Game.instance.Stage.SkillController.Get(pos, elementalType);
             effect.Play();
@@ -167,11 +140,9 @@ namespace Nekoyume.Game.Character
                 AttackEndCalled = false;
                 if (isCritical)
                 {
-                    Animator.CriticalAttack();
                 }
                 else
                 {
-                    Animator.CastAttack();
                 }
 
                 _forceQuit = false;
@@ -206,15 +177,13 @@ namespace Nekoyume.Game.Character
                     effect.SecondStrike();
                 }
                 Prologue.PopupDmg(damageMap[i], go, false, criticalMap[i], ElementalType.Fire, false);
-                _target.Animator.Hit();
-                yield return new WaitUntil(() => _target.Animator.IsIdle());
+
             }
         }
 
         public IEnumerator CoBuff(Buff buff)
         {
             yield return StartCoroutine(CoAnimationBuffCast(buff));
-            Animator.CastAttack();
             AudioController.instance.PlaySfx(AudioController.SfxCode.FenrirGrowlCastingAttack);
             var effect = Game.instance.Stage.BuffController.Get<BuffVFX>(_target, buff);
             effect.Play();
@@ -226,7 +195,6 @@ namespace Nekoyume.Game.Character
             AttackEndCalled = false;
             var sfxCode = AudioController.GetElementalCastingSFX(ElementalType.Normal);
             AudioController.instance.PlaySfx(sfxCode);
-            Animator.Cast();
             var pos = transform.position;
             var effect = Game.instance.Stage.BuffController.Get(pos, buff);
             effect.Play();
@@ -243,37 +211,15 @@ namespace Nekoyume.Game.Character
             effect.Stop();
             AudioController.instance.PlaySfx(AudioController.SfxCode.FenrirGrowlSkill);
             yield return new WaitForSeconds(1f);
-            Animator.Skill();
-            ActionCamera.instance.Shake();
-            yield return new WaitUntil(() => AttackEndCalled);
-            for (var i = 0; i < 2; i++)
-            {
-                var first = i == 0;
-                if (first)
-                {
-                    effect.Play();
-                }
-                else
-                {
-                    Time.timeScale = 0.4f;
-                }
-                Prologue.PopupDmg(damageMap[i], _target.gameObject, false, criticalMap[i], ElementalType.Normal, false);
-                _target.Animator.Hit();
-                if (first)
-                {
-                    yield return new WaitForSeconds(0.3f);
-                }
-                else
-                {
-                    _target.Animator.Die();
-                }
-            }
         }
 
         public IEnumerator CoHit()
         {
-            Animator.Hit();
-            yield return new WaitUntil(() => Animator.IsIdle());
+            yield return null;
         }
+    }
+
+    internal class CharacterSpineController
+    {
     }
 }

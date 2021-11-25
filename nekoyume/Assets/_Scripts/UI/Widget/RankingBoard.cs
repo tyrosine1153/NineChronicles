@@ -174,7 +174,6 @@ namespace Nekoyume.UI
                 3);
             _npc = go.GetComponent<NPC>();
             _npc.gameObject.SetActive(true);
-            _npc.SpineController.Appear();
 
             await UniTask.Run(async () =>
             {

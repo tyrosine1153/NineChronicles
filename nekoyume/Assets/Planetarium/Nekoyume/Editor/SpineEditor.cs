@@ -132,146 +132,12 @@ namespace Planetarium.Nekoyume.Editor
                     Debug.LogError("ValidationSpineResource() return false");
                     return;
                 }
-                
+
                 Debug.LogWarning("ValidationSpineResource() return false");
             }
 
             CreateAnimationReferenceAssets(skeletonDataAsset);
 
-            var skeletonAnimation =
-                SpineEditorUtilities.EditorInstantiation.InstantiateSkeletonAnimation(
-                    skeletonDataAsset);
-            skeletonAnimation.AnimationName = nameof(CharacterAnimation.Type.Idle);
-
-            var gameObject = skeletonAnimation.gameObject;
-            gameObject.name = prefabName;
-            gameObject.layer = LayerMask.NameToLayer("Character");
-            gameObject.transform.position = Position;
-            gameObject.transform.localScale = GetPrefabLocalScale(prefabName);
-
-            var meshRenderer = gameObject.GetComponent<MeshRenderer>();
-            meshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            meshRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-            meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            meshRenderer.receiveShadows = false;
-            meshRenderer.sortingLayerName = "Character";
-
-            var animatorControllerGuidArray = AssetDatabase.FindAssets(FindAssetFilter);
-            if (animatorControllerGuidArray.Length == 0)
-            {
-                Object.DestroyImmediate(gameObject);
-                throw new AssetNotFoundException(
-                    $"AssetDatabase.FindAssets(\"{FindAssetFilter}\")");
-            }
-
-            var animatorControllerPath =
-                AssetDatabase.GUIDToAssetPath(animatorControllerGuidArray[0]);
-            var animator = gameObject.AddComponent<Animator>();
-            animator.runtimeAnimatorController =
-                AssetDatabase.LoadAssetAtPath<AnimatorController>(animatorControllerPath);
-
-            var controller = GetOrCreateSpineController(prefabName, gameObject);
-            // 지금은 예상 외의 애니메이션을 찾지 못하는 로직이다.
-            // animationAssetsPath 하위에 있는 모든 것을 검사..?
-            // 애초에 CreateAnimationReferenceAssets() 단계에서 검사할 수 있겠다.
-            foreach (var animationType in CharacterAnimation.List)
-            {
-                assetPath = Path.Combine(animationAssetsPath, $"{animationType}.asset");
-                var asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(assetPath);
-                if (asset is null)
-                {
-                    switch (animationType)
-                    {
-                        // todo: `CharacterAnimation.Type.Appear`와 `CharacterAnimation.Type.Disappear`는 없어질 예정.
-                        default:
-                            assetPath = Path.Combine(
-                                animationAssetsPath,
-                                $"{nameof(CharacterAnimation.Type.Idle)}.asset");
-                            asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(
-                                assetPath);
-                            break;
-                        case CharacterAnimation.Type.Idle:
-                            Object.DestroyImmediate(gameObject);
-                            throw new AssetNotFoundException(assetPath);
-                        case CharacterAnimation.Type.Win_02:
-                        case CharacterAnimation.Type.Win_03:
-                            assetPath = Path.Combine(
-                                animationAssetsPath,
-                                $"{nameof(CharacterAnimation.Type.Win)}.asset");
-                            asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(
-                                assetPath);
-                            break;
-                        case CharacterAnimation.Type.Touch:
-                        case CharacterAnimation.Type.CastingAttack:
-                        case CharacterAnimation.Type.CriticalAttack:
-                            assetPath = Path.Combine(
-                                animationAssetsPath,
-                                $"{nameof(CharacterAnimation.Type.Attack)}.asset");
-                            asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(
-                                assetPath);
-                            break;
-                        case CharacterAnimation.Type.TurnOver_01:
-                        case CharacterAnimation.Type.TurnOver_02:
-                            assetPath = Path.Combine(
-                                animationAssetsPath,
-                                $"{nameof(CharacterAnimation.Type.Die)}.asset");
-                            asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(
-                                assetPath);
-                            break;
-                    }
-
-                    if (asset is null)
-                    {
-                        assetPath = Path.Combine(
-                            animationAssetsPath,
-                            $"{nameof(CharacterAnimation.Type.Idle)}.asset");
-                        asset = AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(assetPath);
-                    }
-
-                    if (asset is null)
-                    {
-                        Object.DestroyImmediate(gameObject);
-                        throw new AssetNotFoundException(assetPath);
-                    }
-                }
-
-                controller.statesAndAnimations.Add(
-                    new SpineController.StateNameToAnimationReference
-                    {
-                        stateName = animationType.ToString(),
-                        animation = asset
-                    });
-            }
-
-            // 헤어타입을 결정한다.
-            if (controller is PlayerSpineController playerSpineController)
-            {
-                playerSpineController.hairTypeIndex = HairType1Names.Contains(prefabName)
-                    ? 1
-                    : 0;
-            }
-
-            if (File.Exists(prefabPath))
-            {
-                var boxCollider = controller.GetComponent<BoxCollider>();
-                var sourceBoxCollider = AssetDatabase.LoadAssetAtPath<BoxCollider>(prefabPath);
-                boxCollider.center = sourceBoxCollider.center;
-                boxCollider.size = sourceBoxCollider.size;
-
-                AssetDatabase.DeleteAsset(prefabPath);
-            }
-
-            try
-            {
-                var prefab = PrefabUtility.SaveAsPrefabAsset(gameObject, prefabPath);
-                Object.DestroyImmediate(gameObject);
-                Selection.activeObject = prefab;
-            }
-            catch
-            {
-                Object.DestroyImmediate(gameObject);
-                throw new FailedToSaveAsPrefabAssetException(prefabPath);
-            }
         }
 
         #region Character Type
@@ -332,10 +198,7 @@ namespace Planetarium.Nekoyume.Editor
 
         private static bool ValidateForMonster(SkeletonDataAsset skeletonDataAsset)
         {
-            var data = skeletonDataAsset.GetSkeletonData(false);
-            var hud = data.FindBone("HUD");
-
-            return !(hud is null);
+            return false;
         }
 
         private static bool ValidateForNPC(SkeletonDataAsset skeletonDataAsset) => true;
@@ -343,31 +206,6 @@ namespace Planetarium.Nekoyume.Editor
         private static bool ValidateForPlayer(SkeletonDataAsset skeletonDataAsset)
         {
             var result = true;
-            var data = skeletonDataAsset.GetSkeletonData(false);
-            var hud = data.FindBone("HUD");
-            if (hud is null)
-            {
-                Debug.LogError("NotFoundBone: HUD");
-                result = false;
-            }
-
-            var slotNames = new[]
-            {
-                PlayerSpineController.WeaponSlot,
-                PlayerSpineController.EarLeftSlot,
-                PlayerSpineController.EarRightSlot,
-                PlayerSpineController.EyeHalfSlot,
-                PlayerSpineController.EyeOpenSlot,
-            };
-            foreach (var slotName in slotNames)
-            {
-                var weaponSlot = data.FindSlot(slotName);
-                if (weaponSlot is null)
-                {
-                    Debug.LogError($"NotFoundSlot: {slotName}");
-                    result = false;
-                }
-            }
 
             return result;
         }
@@ -411,47 +249,6 @@ namespace Planetarium.Nekoyume.Editor
                     "typeof(AnimationReferenceAsset).GetField(\"skeletonDataAsset\", BindingFlags.NonPublic | BindingFlags.Instance);");
             }
 
-            var skeletonData = skeletonDataAsset.GetSkeletonData(false);
-            foreach (var animation in skeletonData.Animations)
-            {
-                var assetPath =
-                    $"{dataPath}/{SpineEditorUtilities.AssetUtility.GetPathSafeName(animation.Name)}.asset";
-                var existingAsset =
-                    AssetDatabase.LoadAssetAtPath<AnimationReferenceAsset>(assetPath);
-                if (!(existingAsset is null))
-                {
-                    continue;
-                }
-
-                var newAsset = ScriptableObject.CreateInstance<AnimationReferenceAsset>();
-                skeletonDataAssetField.SetValue(newAsset, skeletonDataAsset);
-                nameField.SetValue(newAsset, animation.Name);
-                AssetDatabase.CreateAsset(newAsset, assetPath);
-            }
-
-            var folderObject = AssetDatabase.LoadAssetAtPath(dataPath, typeof(Object));
-            if (!(folderObject is null))
-            {
-                Selection.activeObject = folderObject;
-                EditorGUIUtility.PingObject(folderObject);
-            }
-        }
-
-        private static SpineController GetOrCreateSpineController(string prefabName,
-            GameObject target)
-        {
-            if (IsPlayer(prefabName) ||
-                IsFullCostume(prefabName))
-            {
-                return target.AddComponent<PlayerSpineController>();
-            }
-
-            if (IsNPC(prefabName))
-            {
-                return target.AddComponent<NPCSpineController>();
-            }
-
-            return target.AddComponent<CharacterSpineController>();
         }
 
         private static void CreateSpinePrefabAllOfPath(string path)

@@ -101,19 +101,13 @@ namespace Nekoyume.UI
 
             if (_npc)
             {
-                _npc.SpineController.SkeletonAnimation.skeleton.A = 0;
                 _npc = null;
             }
         }
 
         private void NPCShowAnimation()
         {
-            var skeletonTweener = DOTween.To(
-                () => _npc.SpineController.SkeletonAnimation.skeleton.A,
-                alpha => _npc.SpineController.SkeletonAnimation.skeleton.A = alpha, 1,
-                1f);
-            var tween = skeletonTweener.Play();
-            tween.onComplete += () => _npc.PlayAnimation(NPCAnimation.Type.Greeting_01);
+
         }
     }
 }

@@ -277,7 +277,6 @@ namespace Nekoyume.UI
                 // stop run immediately.
                 _player.gameObject.SetActive(false);
                 _player.gameObject.SetActive(true);
-                _player.SpineController.Appear();
                 var currentAvatarState = Game.Game.instance.States.CurrentAvatarState;
                 _player.Set(currentAvatarState);
 

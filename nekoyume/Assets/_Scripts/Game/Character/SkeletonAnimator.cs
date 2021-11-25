@@ -18,32 +18,32 @@ namespace Nekoyume.Game.Character
         {
             base.ResetTarget(value);
 
-            if (!(Skeleton is null) &&
-                !(Skeleton.AnimationState is null))
-            {
-                Skeleton.AnimationState.Event -= RaiseEvent;
-            }
-
-            MeshRenderer = value.GetComponent<MeshRenderer>();
-            if (MeshRenderer is null)
-            {
-                throw new NotFoundComponentException<MeshRenderer>();
-            }
-
-            Skeleton = value.GetComponent<SkeletonAnimation>();
-            if (Skeleton is null)
-            {
-                throw new NotFoundComponentException<SkeletonAnimation>();
-            }
-
-            Skeleton.timeScale = TimeScale;
-
-            if (Skeleton.AnimationState is null)
-            {
-                throw new NullReferenceException(nameof(Skeleton.AnimationState));
-            }
-
-            Skeleton.AnimationState.Event += RaiseEvent;
+            // if (!(Skeleton is null) &&
+            //     !(Skeleton.AnimationState is null))
+            // {
+            //     Skeleton.AnimationState.Event -= RaiseEvent;
+            // }
+            //
+            // MeshRenderer = value.GetComponent<MeshRenderer>();
+            // if (MeshRenderer is null)
+            // {
+            //     throw new NotFoundComponentException<MeshRenderer>();
+            // }
+            //
+            // Skeleton = value.GetComponent<SkeletonAnimation>();
+            // if (Skeleton is null)
+            // {
+            //     throw new NotFoundComponentException<SkeletonAnimation>();
+            // }
+            //
+            // Skeleton.timeScale = TimeScale;
+            //
+            // if (Skeleton.AnimationState is null)
+            // {
+            //     throw new NullReferenceException(nameof(Skeleton.AnimationState));
+            // }
+            //
+            // Skeleton.AnimationState.Event += RaiseEvent;
         }
 
         public override bool ValidateAnimator()
@@ -51,9 +51,6 @@ namespace Nekoyume.Game.Character
             return base.ValidateAnimator() && !ReferenceEquals(Skeleton, null);
         }
 
-        private void RaiseEvent(TrackEntry trackEntry, Spine.Event e)
-        {
-            OnEvent.OnNext(e.Data.Name);
-        }
+
     }
 }

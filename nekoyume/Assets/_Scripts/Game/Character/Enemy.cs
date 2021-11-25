@@ -24,7 +24,7 @@ namespace Nekoyume.Game.Character
 
         protected override bool CanRun => base.CanRun && !TargetInAttackRange(_player);
 
-        private CharacterSpineController SpineController { get; set; }
+        // private CharacterSpineController SpineController { get; set; }
 
         public override string TargetTag => Tag.Player;
 
@@ -35,15 +35,13 @@ namespace Nekoyume.Game.Character
             base.Awake();
 
             Animator = new EnemyAnimator(this);
-            Animator.OnEvent.Subscribe(OnAnimatorEvent);
-            Animator.TimeScale = AnimatorTimeScale;
+
 
             TargetTag = Tag.Player;
         }
 
         private void OnDestroy()
         {
-            Animator?.Dispose();
         }
 
         #endregion
@@ -115,7 +113,7 @@ namespace Nekoyume.Game.Character
 
         protected override BoxCollider GetAnimatorHitPointBoxCollider()
         {
-            return SpineController.BoxCollider;
+            return null;
         }
 
         #region AttackPoint & HitPoint
@@ -132,7 +130,7 @@ namespace Nekoyume.Game.Character
 
         #endregion
 
-        #region Equipments & Customize
+        // #region Equipments & Customize
 
         private const int DefaultCharacter = 201000;
 
@@ -141,23 +139,10 @@ namespace Nekoyume.Game.Character
             var armorId = CharacterModel?.RowData.Id ?? DefaultCharacter;
             var spineResourcePath = $"Character/Monster/{armorId}";
 
-            if (!(Animator.Target is null))
-            {
-                var animatorTargetName = spineResourcePath.Split('/').Last();
-                if (Animator.Target.name.Contains(animatorTargetName))
-                    return;
-
-                Animator.DestroyTarget();
-            }
-
-            var origin = Resources.Load<GameObject>(spineResourcePath);
-            var go = Instantiate(origin, gameObject.transform);
-            SpineController = go.GetComponent<CharacterSpineController>();
-            Animator.ResetTarget(go);
             UpdateHitPoint();
         }
 
-        #endregion
+
 
         protected override void ProcessAttack(CharacterBase target, Model.BattleStatus.Skill.SkillInfo skill, bool isLastHit,
             bool isConsiderElementalType)
@@ -177,19 +162,11 @@ namespace Nekoyume.Game.Character
         {
             var spineResourcePath = $"Character/Monster/{characterId}";
 
-            if (!(Animator.Target is null))
-            {
-                var animatorTargetName = spineResourcePath.Split('/').Last();
-                if (Animator.Target.name.Contains(animatorTargetName))
-                    return;
-
-                Animator.DestroyTarget();
-            }
 
             var origin = Resources.Load<GameObject>(spineResourcePath);
             var go = Instantiate(origin, gameObject.transform);
-            SpineController = go.GetComponent<CharacterSpineController>();
-            Animator.ResetTarget(go);
+            // SpineController = go.GetComponent<CharacterSpineController>();
+            // Animator.ResetTarget(go);
         }
     }
 }

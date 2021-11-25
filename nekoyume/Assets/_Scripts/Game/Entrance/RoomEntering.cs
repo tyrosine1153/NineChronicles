@@ -41,7 +41,6 @@ namespace Nekoyume.Game.Entrance
             player.StopAllCoroutines();
             player.StartRun();
 
-            Widget.Find<Menu>().UpdatePlayerReactButton(player.Animator.Touch);
 
             var status = Widget.Find<Status>();
             status.UpdatePlayer(player);
@@ -80,7 +79,6 @@ namespace Nekoyume.Game.Entrance
             }
 
             player.RunSpeed = 0.0f;
-            player.Animator.Idle();
 
             Widget.Find<Status>().Show();
             Widget.Find<EventBanner>().Show();

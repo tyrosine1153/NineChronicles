@@ -117,8 +117,6 @@ namespace Nekoyume.UI
                         _fenrir = go.GetComponent<DialogNPC>();
                     }
 
-                    _freya?.SpineController.Disappear(0.3f);
-                    _fenrir.SpineController.Appear(0.3f);
                 }
                 else
                 {
@@ -132,8 +130,6 @@ namespace Nekoyume.UI
                         _freya = go.GetComponent<DialogNPC>();
                     }
 
-                    _freya.SpineController.Appear(0.3f);
-                    _fenrir?.SpineController.Disappear(0.3f);
                 }
                 string localizedName;
                 try

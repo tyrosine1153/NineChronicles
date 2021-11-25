@@ -117,7 +117,6 @@ namespace Nekoyume.UI
                 LayerType.UI,
                 31);
             _npc = go.GetComponent<NPC>();
-            _npc.SpineController.Appear(.3f);
             ShowButton();
             var pos = ActionCamera.instance.Cam.transform.position;
             _sparkVFX = VFXController.instance.CreateAndChaseCam<CombinationSparkVFX>(pos);

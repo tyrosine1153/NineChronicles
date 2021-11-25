@@ -1,31 +1,30 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 using System;
@@ -65,8 +64,8 @@ namespace Spine {
 		public void Update (Skeleton skeleton, bool updateAabb) {
 			ExposedList<BoundingBoxAttachment> boundingBoxes = BoundingBoxes;
 			ExposedList<Polygon> polygons = Polygons;
-			ExposedList<Slot> slots = skeleton.slots;
-			int slotCount = slots.Count;
+			Slot[] slots = skeleton.slots.Items;
+			int slotCount = skeleton.slots.Count;
 
 			boundingBoxes.Clear();
 			for (int i = 0, n = polygons.Count; i < n; i++)
@@ -74,7 +73,8 @@ namespace Spine {
 			polygons.Clear();
 
 			for (int i = 0; i < slotCount; i++) {
-				Slot slot = slots.Items[i];
+				Slot slot = slots[i];
+				if (!slot.bone.active) continue;
 				BoundingBoxAttachment boundingBox = slot.attachment as BoundingBoxAttachment;
 				if (boundingBox == null) continue;
 				boundingBoxes.Add(boundingBox);
@@ -106,9 +106,9 @@ namespace Spine {
 
 		private void AabbCompute () {
 			float minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
-			ExposedList<Polygon> polygons = Polygons;
-			for (int i = 0, n = polygons.Count; i < n; i++) {
-				Polygon polygon = polygons.Items[i];
+			Polygon[] polygons = Polygons.Items;
+			for (int i = 0, n = Polygons.Count; i < n; i++) {
+				Polygon polygon = polygons[i];
 				float[] vertices = polygon.Vertices;
 				for (int ii = 0, nn = polygon.Count; ii < nn; ii += 2) {
 					float x = vertices[ii];
@@ -124,7 +124,6 @@ namespace Spine {
 			this.maxX = maxX;
 			this.maxY = maxY;
 		}
-
 
 		/// <summary>Returns true if the axis aligned bounding box contains the point.</summary>
 		public bool AabbContainsPoint (float x, float y) {
@@ -176,20 +175,20 @@ namespace Spine {
 		}
 
 		/// <summary>Returns the first bounding box attachment that contains the point, or null. When doing many checks, it is usually more
-		/// efficient to only call this method if {@link #aabbContainsPoint(float, float)} returns true.</summary>
+		/// efficient to only call this method if <see cref="AabbContainsPoint(float, float)"/> returns true.</summary>
 		public BoundingBoxAttachment ContainsPoint (float x, float y) {
-			ExposedList<Polygon> polygons = Polygons;
-			for (int i = 0, n = polygons.Count; i < n; i++)
-				if (ContainsPoint(polygons.Items[i], x, y)) return BoundingBoxes.Items[i];
+			Polygon[] polygons = Polygons.Items;
+			for (int i = 0, n = Polygons.Count; i < n; i++)
+				if (ContainsPoint(polygons[i], x, y)) return BoundingBoxes.Items[i];
 			return null;
 		}
 
 		/// <summary>Returns the first bounding box attachment that contains the line segment, or null. When doing many checks, it is usually
-		/// more efficient to only call this method if {@link #aabbIntersectsSegment(float, float, float, float)} returns true.</summary>
+		/// more efficient to only call this method if <see cref="aabbIntersectsSegment(float, float, float, float)"/> returns true.</summary>
 		public BoundingBoxAttachment IntersectsSegment (float x1, float y1, float x2, float y2) {
-			ExposedList<Polygon> polygons = Polygons;
-			for (int i = 0, n = polygons.Count; i < n; i++)
-				if (IntersectsSegment(polygons.Items[i], x1, y1, x2, y2)) return BoundingBoxes.Items[i];
+			Polygon[] polygons = Polygons.Items;
+			for (int i = 0, n = Polygons.Count; i < n; i++)
+				if (IntersectsSegment(polygons[i], x1, y1, x2, y2)) return BoundingBoxes.Items[i];
 			return null;
 		}
 

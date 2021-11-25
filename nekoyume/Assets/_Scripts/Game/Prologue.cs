@@ -56,8 +56,6 @@ namespace Nekoyume.Game
             _player.ShowSpeech("PLAYER_PROLOGUE_SPEECH");
             AudioController.instance.PlaySfx(AudioController.SfxCode.FenrirGrowlCasting);
             _player.StopRun();
-            _fenrir.Animator.StandingToIdle();
-            yield return new WaitUntil(() => _fenrir.Animator.IsIdle());
             yield return new WaitForSeconds(1f);
             Widget.Find<PrologueDialogPopup>().Show();
             yield return new WaitWhile(() => Widget.Find<PrologueDialogPopup>().isActiveAndEnabled);
@@ -144,24 +142,19 @@ namespace Nekoyume.Game
             _player.Ready();
             if (critical)
             {
-                _player.Animator.CriticalAttack();
             }
             else
             {
-                _player.Animator.Attack();
             }
             yield return new WaitUntil(() => _player.AttackEnd);
             if (dead)
             {
-                enemy.Animator.Die();
             }
             else
             {
-                enemy.Animator.Hit();
             }
             _battle.ShowComboText(true);
             PopupDmg(damage, enemy.gameObject, true, critical, ElementalType.Normal, isFenrir);
-            yield return new WaitUntil(() => _player.Animator.IsIdle());
         }
 
         private IEnumerator PlayerFinisher()
@@ -169,7 +162,6 @@ namespace Nekoyume.Game
             _player.Ready();
             var sfxCode = AudioController.GetElementalCastingSFX(ElementalType.Fire);
             AudioController.instance.PlaySfx(sfxCode);
-            _player.Animator.Cast();
             var pos = _player.transform.position;
             var castingEffect = Game.instance.Stage.SkillController.Get(pos, ElementalType.Fire);
             castingEffect.Play();
@@ -186,7 +178,6 @@ namespace Nekoyume.Game
                 {
                     effect.StopLoop();
                     yield return new WaitForSeconds(0.1f);
-                    _player.Animator.CriticalAttack();
                     effect.Finisher();
                     yield return new WaitUntil(() => effect.last.isStopped);
                     yield return new WaitForSeconds(0.2f);
@@ -197,8 +188,6 @@ namespace Nekoyume.Game
                 StartCoroutine(_pig.CoHit());
                 StartCoroutine(_knight.CoHit());
             }
-            _pig.Animator.Die();
-            _knight.Animator.Die();
             yield return new WaitUntil(() => _player.AttackEnd);
             yield return new WaitForSeconds(1f);
         }
@@ -206,7 +195,6 @@ namespace Nekoyume.Game
         private IEnumerator CoPlayerHeal()
         {
             _player.Ready();
-            _player.Animator.Cast();
             AudioController.instance.PlaySfx(AudioController.SfxCode.Heal);
             var buffRow = Game.instance.TableSheets.BuffSheet.Values.First(r =>
                 r.StatModifier.Value > 0 && r.StatModifier.StatType == StatType.HP);
@@ -220,7 +208,6 @@ namespace Nekoyume.Game
             var force = new Vector3(-0.1f, 0.5f);
             DamageText.Show(position, force, 64000.ToString(), DamageText.TextGroupState.Heal);
             yield return new WaitForSeconds(1f);
-            _player.Animator.Idle();
             yield return new WaitForSeconds(1f);
         }
         private IEnumerator CoBattle()
@@ -257,7 +244,6 @@ namespace Nekoyume.Game
             yield return StartCoroutine(_fenrir.CoFinisher(new[] {580214, 999999}, new[] {true, true}));
             yield return new WaitForSeconds(1f);
             Time.timeScale = 1f;
-            _fenrir.Animator.Idle();
         }
     }
 }

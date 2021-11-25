@@ -100,16 +100,13 @@ namespace Nekoyume.Game.Trigger
             AudioController.instance.PlaySfx(AudioController.SfxCode.FenrirGrowlSummon);
             for (var index = 0; index < monsterIds.Count; index++)
             {
-                fenrir.Animator.Cast();
                 var id = monsterIds[index];
                 var pos = new Vector2(
                     spawnPoints[index].x + position.x + offset,
                     spawnPoints[index].y);
                 var go = EnemyFactory.Create(id, pos, offset, player, true);
                 var enemy = go.GetComponent<PrologueCharacter>();
-                yield return new WaitUntil(() => enemy.Animator.IsIdle());
                 yield return new WaitForSeconds(1f);
-                fenrir.Animator.Idle();
                 yield return new WaitForSeconds(0.3f);
             }
         }

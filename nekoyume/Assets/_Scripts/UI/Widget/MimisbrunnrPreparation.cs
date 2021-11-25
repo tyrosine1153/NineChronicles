@@ -298,7 +298,6 @@ namespace Nekoyume.UI
                 // stop run immediately.
                 _player.gameObject.SetActive(false);
                 _player.gameObject.SetActive(true);
-                _player.SpineController.Appear();
                 _player.Set(currentAvatarState);
 
                 equipmentSlots.SetPlayerEquipments(_player.Model, ShowTooltip, Unequip);
