@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CustomEditor(typeof(LightColorController))]
-public class LightColorControllerEditor : Editor
+public class LightColorControllerEditor : UnityEditor.Editor
 {
     public override void OnInspectorGUI()
     {

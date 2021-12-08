@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Experimental.U2D.Animation;
-using UnityEngine.InputSystem;
 
 public enum GroundType
 {
@@ -59,26 +58,26 @@ public class CharacterController2D : MonoBehaviour
 
     void Start()
     {
-#if UNITY_EDITOR
-        if (Keyboard.current == null)
-        {
-            var playerSettings = new UnityEditor.SerializedObject(Resources.FindObjectsOfTypeAll<UnityEditor.PlayerSettings>()[0]);
-            var newInputSystemProperty = playerSettings.FindProperty("enableNativePlatformBackendsForNewInputSystem");
-            bool newInputSystemEnabled = newInputSystemProperty != null ? newInputSystemProperty.boolValue : false;
-
-            if (newInputSystemEnabled)
-            {
-                var msg = "New Input System backend is enabled but it requires you to restart Unity, otherwise the player controls won't work. Do you want to restart now?";
-                if (UnityEditor.EditorUtility.DisplayDialog("Warning", msg, "Yes", "No"))
-                {
-                    UnityEditor.EditorApplication.ExitPlaymode();
-                    var dataPath = Application.dataPath;
-                    var projectPath = dataPath.Substring(0, dataPath.Length - 7);
-                    UnityEditor.EditorApplication.OpenProject(projectPath);
-                }
-            }
-        }
-#endif
+// #if UNITY_EDITOR
+//         if (Keyboard.current == null)
+//         {
+//             var playerSettings = new UnityEditor.SerializedObject(Resources.FindObjectsOfTypeAll<UnityEditor.PlayerSettings>()[0]);
+//             var newInputSystemProperty = playerSettings.FindProperty("enableNativePlatformBackendsForNewInputSystem");
+//             bool newInputSystemEnabled = newInputSystemProperty != null ? newInputSystemProperty.boolValue : false;
+//
+//             if (newInputSystemEnabled)
+//             {
+//                 var msg = "New Input System backend is enabled but it requires you to restart Unity, otherwise the player controls won't work. Do you want to restart now?";
+//                 if (UnityEditor.EditorUtility.DisplayDialog("Warning", msg, "Yes", "No"))
+//                 {
+//                     UnityEditor.EditorApplication.ExitPlaymode();
+//                     var dataPath = Application.dataPath;
+//                     var projectPath = dataPath.Substring(0, dataPath.Length - 7);
+//                     UnityEditor.EditorApplication.OpenProject(projectPath);
+//                 }
+//             }
+//         }
+// #endif
 
         controllerRigidbody = GetComponent<Rigidbody2D>();
         controllerCollider = GetComponent<Collider2D>();
@@ -94,24 +93,24 @@ public class CharacterController2D : MonoBehaviour
 
     void Update()
     {
-        var keyboard = Keyboard.current;
-
-        if (!CanMove || keyboard == null)
-            return;
-
-        // Horizontal movement
-        float moveHorizontal = 0.0f;
-
-        if (keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed)
-            moveHorizontal = -1.0f;
-        else if (keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed)
-            moveHorizontal = 1.0f;
-
-        movementInput = new Vector2(moveHorizontal, 0);
-
-        // Jumping input
-        if (!isJumping && keyboard.spaceKey.wasPressedThisFrame)
-            jumpInput = true;
+        // var keyboard = Keyboard.current;
+        //
+        // if (!CanMove || keyboard == null)
+        //     return;
+        //
+        // // Horizontal movement
+        // float moveHorizontal = 0.0f;
+        //
+        // if (keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed)
+        //     moveHorizontal = -1.0f;
+        // else if (keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed)
+        //     moveHorizontal = 1.0f;
+        //
+        // movementInput = new Vector2(moveHorizontal, 0);
+        //
+        // // Jumping input
+        // if (!isJumping && keyboard.spaceKey.wasPressedThisFrame)
+        //     jumpInput = true;
     }
 
     void FixedUpdate()
@@ -245,7 +244,7 @@ public class CharacterController2D : MonoBehaviour
         if (groundType == GroundType.None)
         {
             // If not grounded then set the gravity scale according to upwards (jump) or downwards (falling) motion.
-            gravityScale = controllerRigidbody.velocity.y > 0.0f ? jumpGravityScale : fallGravityScale;           
+            gravityScale = controllerRigidbody.velocity.y > 0.0f ? jumpGravityScale : fallGravityScale;
         }
 
         controllerRigidbody.gravityScale = gravityScale;
