@@ -584,7 +584,7 @@ namespace Nekoyume.UI
             };
             var eventKey = SharedModel.ClearedWaveNumber == 3 ? "Repeat" : "Retry";
             var eventName = $"Unity/Stage Exit {eventKey}";
-            Mixpanel.Track(eventName, props);
+            Analyzer.Instance.Track(eventName, props);
 
             // NOTE: Check mimisbrunnr
             if (SharedModel.WorldID > 10000)
@@ -652,9 +652,9 @@ namespace Nekoyume.UI
             };
             var eventKey = Game.Game.instance.Stage.IsExitReserved ? "Quit" : "Main";
             var eventName = $"Unity/Stage Exit {eventKey}";
-            Mixpanel.Track(eventName, props);
+            Analyzer.Instance.Track(eventName, props);
 
-            Find<Battle>().Close();
+            Find<Battle>().Close(true);
             Game.Event.OnRoomEnter.Invoke(true);
             Close();
         }

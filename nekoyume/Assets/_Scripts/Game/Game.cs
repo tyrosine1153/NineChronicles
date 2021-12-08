@@ -11,11 +11,6 @@ using Bencodex.Types;
 using Lib9c.Formatters;
 using MessagePack;
 using MessagePack.Resolvers;
-#if !UNITY_EDITOR
-using Libplanet;
-using Libplanet.Crypto;
-#endif
-using mixpanel;
 using Nekoyume.Action;
 using Nekoyume.BlockChain;
 using Nekoyume.Game.Controller;
@@ -26,11 +21,7 @@ using Nekoyume.Model.State;
 using Nekoyume.Pattern;
 using Nekoyume.State;
 using Nekoyume.UI;
-using Nekoyume.UI.Module;
-using UniRx;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.Serialization;
 using Menu = Nekoyume.UI.Menu;
 
 namespace Nekoyume.Game
@@ -56,8 +47,12 @@ namespace Nekoyume.Game
         public States States { get; private set; }
 
         public LocalLayer LocalLayer { get; private set; }
+        
+        public LocalLayerActions LocalLayerActions { get; private set; }
 
         public IAgent Agent { get; private set; }
+        
+        public Analyzer Analyzer { get; private set; }
 
         public Stage Stage => stage;
 
@@ -102,23 +97,6 @@ namespace Nekoyume.Game
 
             Debug.Log("[Game] Awake() CommandLineOptions loaded");
 
-#if !UNITY_EDITOR
-            // FIXME 이후 사용자가 원치 않으면 정보를 보내지 않게끔 해야 합니다.
-            Mixpanel.SetToken("80a1e14b57d050536185c7459d45195a");
-
-            if (!(_options.PrivateKey is null))
-            {
-                var privateKey = new PrivateKey(ByteUtil.ParseHex(_options.PrivateKey));
-                Address address = privateKey.ToAddress();
-                Mixpanel.Identify(address.ToString());
-            }
-
-            Mixpanel.Init();
-            Mixpanel.Track("Unity/Started");
-
-            Debug.Log("[Game] Awake() Mixpanel initialized");
-#endif
-
             if (_options.RpcClient)
             {
                 Agent = GetComponent<RPCAgent>();
@@ -131,6 +109,7 @@ namespace Nekoyume.Game
 
             States = new States();
             LocalLayer = new LocalLayer();
+            LocalLayerActions = new LocalLayerActions();
             MainCanvas.instance.InitializeIntro();
         }
 
@@ -183,6 +162,8 @@ namespace Nekoyume.Game
             );
 
             yield return new WaitUntil(() => agentInitialized);
+            Analyzer = new Analyzer().Initialize(Agent.Address.ToString());
+            Analyzer.Track("Unity/Started");
             // NOTE: Create ActionManager after Agent initialized.
             ActionManager = new ActionManager(Agent);
             yield return StartCoroutine(CoSyncTableSheets());
@@ -413,17 +394,19 @@ namespace Nekoyume.Game
             }
 
             // FIXME 콜백 인자를 구조화 하면 타입 쿼리 없앨 수 있을 것 같네요.
+            IconAndButtonSystem popup;
             if (Agent is Agent _)
             {
                 var errorMsg = string.Format(L10nManager.Localize("UI_ERROR_FORMAT"),
                     L10nManager.Localize("BLOCK_DOWNLOAD_FAIL"));
 
-                Widget.Find<TitleOneButtonSystem>().ShowAndQuit(
-                    L10nManager.Localize("UI_ERROR"),
+                popup = Widget.Find<IconAndButtonSystem>();
+                popup.Show(L10nManager.Localize("UI_ERROR"),
                     errorMsg,
                     L10nManager.Localize("UI_QUIT"),
-                    false
-                );
+                    false,
+                    IconAndButtonSystem.SystemType.BlockChainError);
+                popup.SetCancelCallbackToExit();
 
                 return;
             }
@@ -442,11 +425,9 @@ namespace Nekoyume.Game
                 return;
             }
 
-            Widget.Find<TitleOneButtonSystem>().ShowAndQuit(
-                "UI_ERROR",
-                "UI_ERROR_RPC_CONNECTION",
-                "UI_QUIT"
-            );
+            popup = Widget.Find<IconAndButtonSystem>();
+            popup.Show("UI_ERROR", "UI_ERROR_RPC_CONNECTION", "UI_QUIT");
+            popup.SetCancelCallbackToExit();
         }
 
         // FIXME: Leave one between this or CoSyncTableSheets()
@@ -535,11 +516,12 @@ namespace Nekoyume.Game
 
         protected override void OnApplicationQuit()
         {
-            if (Mixpanel.IsInitialized())
+            if (Analyzer.Instance != null)
             {
-                Mixpanel.Track("Unity/Player Quit");
-                Mixpanel.Flush();
+                Analyzer.Instance.Track("Unity/Player Quit");
+                Analyzer.Instance.Flush();   
             }
+
             _logsClient?.Dispose();
         }
 
@@ -590,10 +572,10 @@ namespace Nekoyume.Game
                     L10nManager.Localize(key),
                     code)
                 : errorMsg;
-            Widget
-                .Find<TitleOneButtonSystem>()
-                .Show(L10nManager.Localize("UI_ERROR"), errorMsg,
-                    L10nManager.Localize("UI_OK"), false);
+            var popup = Widget.Find<IconAndButtonSystem>();
+            popup.Show(L10nManager.Localize("UI_ERROR"), errorMsg,
+                L10nManager.Localize("UI_OK"), false);
+            popup.SetCancelCallbackToExit();
         }
 
         public static void Quit()
@@ -619,8 +601,8 @@ namespace Nekoyume.Game
         {
             if (_options.Maintenance)
             {
-                var w = Widget.Create<TitleOneButtonSystem>();
-                w.CloseCallback = () =>
+                var w = Widget.Create<IconAndButtonSystem>();
+                w.CancelCallback = () =>
                 {
                     Application.OpenURL(GameConfig.DiscordLink);
 #if UNITY_EDITOR
@@ -632,7 +614,9 @@ namespace Nekoyume.Game
                 w.Show(
                     "UI_MAINTENANCE",
                     "UI_MAINTENANCE_CONTENT",
-                    "UI_OK"
+                    "UI_OK",
+                    true,
+                    IconAndButtonSystem.SystemType.Information
                 );
                 yield break;
             }

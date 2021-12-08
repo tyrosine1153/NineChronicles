@@ -11,6 +11,7 @@ using Nekoyume.L10n;
 using Nekoyume.Model.Mail;
 using Nekoyume.State;
 using Nekoyume.UI.Module;
+using Nekoyume.UI.Scroller;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -93,7 +94,10 @@ namespace Nekoyume.UI
             var currentGold = double.Parse(States.Instance.GoldBalanceState.Gold.GetQuantityString());
             if (currentGold < _price)
             {
-                OneLineSystem.Push(MailType.System, L10nManager.Localize("UI_NOT_ENOUGH_NCG"));
+                OneLineSystem.Push(
+                    MailType.System,
+                    L10nManager.Localize("UI_NOT_ENOUGH_NCG"),
+                    NotificationCell.NotificationType.Information);
                 return;
             }
 
@@ -124,7 +128,7 @@ namespace Nekoyume.UI
                 {
                     ["Count"] = shopItems.SharedModel.WishItemCount,
                 };
-                Mixpanel.Track("Unity/Number of Purchased Items", props);
+                Analyzer.Instance.Track("Unity/Number of Purchased Items", props);
             }
 
             foreach (var shopItem in shopItems.SharedModel.GetWishItems)
@@ -133,12 +137,13 @@ namespace Nekoyume.UI
                 {
                     ["Price"] = shopItem.Price.Value.GetQuantityString(),
                 };
-                Mixpanel.Track("Unity/Buy", props);
+                Analyzer.Instance.Track("Unity/Buy", props);
                 shopItem.Selected.Value = false;
                 ReactiveShopState.RemoveBuyDigest(shopItem.OrderId.Value);
                 var format = L10nManager.Localize("NOTIFICATION_BUY_START");
                 OneLineSystem.Push(MailType.Auction,
-                    string.Format(format, shopItem.ItemBase.Value.GetLocalizedName()));
+                    string.Format(format, shopItem.ItemBase.Value.GetLocalizedName()),
+                    NotificationCell.NotificationType.Information);
             }
             AudioController.instance.PlaySfx(AudioController.SfxCode.BuyItem);
             shopItems.SharedModel.ClearWishList();

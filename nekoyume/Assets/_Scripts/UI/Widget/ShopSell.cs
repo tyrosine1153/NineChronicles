@@ -22,6 +22,7 @@ using ShopItem = Nekoyume.UI.Model.ShopItem;
 
 namespace Nekoyume.UI
 {
+    using Nekoyume.UI.Scroller;
     using UniRx;
 
     public class ShopSell : Widget
@@ -313,7 +314,10 @@ namespace Nekoyume.UI
 
             if (data.TotalPrice.Value.MinorUnit > 0)
             {
-                OneLineSystem.Push(MailType.System, L10nManager.Localize("UI_TOTAL_PRICE_WARNING"));
+                OneLineSystem.Push(
+                    MailType.System,
+                    L10nManager.Localize("UI_TOTAL_PRICE_WARNING"),
+                    NotificationCell.NotificationType.Alert);
                 return;
             }
 
@@ -326,7 +330,7 @@ namespace Nekoyume.UI
             var count = data.Count.Value;
             var itemSubType = data.Item.Value.ItemBase.Value.ItemSubType;
             Game.Game.instance.ActionManager.Sell(tradableItem, count, totalPrice, itemSubType).Subscribe();
-            Mixpanel.Track("Unity/Sell");
+            Analyzer.Instance.Track("Unity/Sell");
             ResponseSell();
         }
 
@@ -339,7 +343,10 @@ namespace Nekoyume.UI
 
             if (data.TotalPrice.Value.MinorUnit > 0)
             {
-                OneLineSystem.Push(MailType.System, L10nManager.Localize("UI_TOTAL_PRICE_WARNING"));
+                OneLineSystem.Push(
+                    MailType.System,
+                    L10nManager.Localize("UI_TOTAL_PRICE_WARNING"),
+                    NotificationCell.NotificationType.Alert);
                 return;
             }
 
@@ -366,7 +373,7 @@ namespace Nekoyume.UI
                 count,
                 totalPrice,
                 itemSubType).Subscribe();
-            Mixpanel.Track("Unity/UpdateSell");
+            Analyzer.Instance.Track("Unity/UpdateSell");
             ResponseSell();
         }
 
@@ -422,7 +429,10 @@ namespace Nekoyume.UI
                         break;
                 }
 
-                OneLineSystem.Push(MailType.System, L10nManager.Localize("UI_SELL_LIMIT_EXCEEDED"));
+                OneLineSystem.Push(
+                    MailType.System,
+                    L10nManager.Localize("UI_SELL_LIMIT_EXCEEDED"),
+                    NotificationCell.NotificationType.Alert);
             }
 
             var currency = model.TotalPrice.Value.Currency;
@@ -466,7 +476,7 @@ namespace Nekoyume.UI
             var digest = ReactiveShopState.GetSellDigest(tradableId, requiredBlockIndex, price, count);
             if (digest != null)
             {
-                Mixpanel.Track("Unity/Sell Cancellation");
+                Analyzer.Instance.Track("Unity/Sell Cancellation");
                 Game.Game.instance.ActionManager.SellCancellation(
                     avatarAddress,
                     digest.OrderId,
@@ -524,7 +534,7 @@ namespace Nekoyume.UI
                 message = string.Format(L10nManager.Localize("NOTIFICATION_SELL_START"),
                     item.ItemBase.Value.GetLocalizedName());
             }
-            OneLineSystem.Push(MailType.Auction, message);
+            OneLineSystem.Push(MailType.Auction, message, NotificationCell.NotificationType.Information);
             inventory.SharedModel.ActiveFunc.SetValueAndForceNotify(inventoryItem => (inventoryItem.ItemBase.Value is ITradableItem));
             Refresh();
         }
@@ -536,7 +546,10 @@ namespace Nekoyume.UI
             ReactiveShopState.RemoveSellDigest(orderId);
             AudioController.instance.PlaySfx(AudioController.SfxCode.InputItem);
             var format = L10nManager.Localize("NOTIFICATION_SELL_CANCEL_START");
-            OneLineSystem.Push(MailType.Auction, string.Format(format, itemName));
+            OneLineSystem.Push(
+                MailType.Auction,
+                string.Format(format, itemName),
+                NotificationCell.NotificationType.Information);
             inventory.SharedModel.ActiveFunc.SetValueAndForceNotify(inventoryItem => (inventoryItem.ItemBase.Value is ITradableItem));
             Refresh();
         }
