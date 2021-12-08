@@ -1,0 +1,96 @@
+﻿{
+  "backgroundGlobalLight": [
+    {
+      "name" : "chapter_01_01",
+      "lightType" : 1
+    },
+    {
+      "name" : "chapter_01_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_01_03",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_02_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_02_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_02_03",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_03_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_03_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_03_03",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_04_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_04_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_04_03",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_05_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_05_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_05_03",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_99_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "chapter_Prologue",
+      "lightType" : 0
+    },
+    {
+      "name" : "combination",
+      "lightType" : 0
+    },
+    {
+      "name" : "dungeon_01",
+      "lightType" : 0
+    },
+    {
+      "name" : "dungeon_02",
+      "lightType" : 0
+    },
+    {
+      "name" : "nest",
+      "lightType" : 0
+    },
+    {
+      "name" : "PVP",
+      "lightType" : 0
+    },
+    {
+      "name" : "ranking",
+      "lightType" : 0
+    }
+  ]
+}

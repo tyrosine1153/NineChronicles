@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Nekoyume.EnumType;
 using UnityEngine;
-using TMPro;
 
-namespace Nekoyume.Game.Controller
+namespace Nekoyume
 {
     public static class Palette
     {

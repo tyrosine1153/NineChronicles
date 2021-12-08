@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d16f952f1e794244a26c7c9e55d3298d, type: 3}
+  m_Name: UI_LightPalette
+  m_EditorClassIdentifier: 
+  lights:
+  - {fileID: 4879515865212541042, guid: 01ddee8f31b142d419e45577492e5545, type: 3}
+  - {fileID: 4268562575252723523, guid: 7f369783cf8643245ae13f285e3096d6, type: 3}
+  - {fileID: 7307480869785999985, guid: 50d7272e52085c44eb11d566d6c8188c, type: 3}

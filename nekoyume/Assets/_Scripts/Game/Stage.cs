@@ -77,6 +77,7 @@ namespace Nekoyume.Game
         private Vector3 _playerPosition;
         private Coroutine _positionCheckCoroutine;
         private List<int> prevFood;
+        private GameObject _light;
 
         public List<GameObject> ReleaseWhiteList { get; private set; } = new List<GameObject>();
         public SkillController SkillController { get; private set; }
@@ -276,6 +277,13 @@ namespace Nekoyume.Game
 
             background = Instantiate(prefab, transform);
             background.name = prefabName;
+
+            if (_light)
+            {
+                DestroyImmediate(_light);
+            }
+            var lightPrefab = LightPalette.GetBackgroundGlobalLight(prefabName);
+            _light = Instantiate(lightPrefab, background.transform);
 
             foreach (Transform child in background.transform)
             {
