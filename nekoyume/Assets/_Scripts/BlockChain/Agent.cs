@@ -305,6 +305,27 @@ namespace Nekoyume.BlockChain
                    && blocks.GetStagedTransactionIds().Contains(txId);
         }
 
+        public async Task<Dictionary<Address, IValue>> GetStateBulk(IEnumerable<Address> addressList)
+        {
+            return await Task.Run(async () =>
+            {
+                var dict = new Dictionary<Address, IValue>();
+                foreach (var address in addressList)
+                {
+                    var result = await GetStateAsync(address);
+                    dict[address] = result;
+                }
+
+                return dict;
+            });
+        }
+
+        public bool TryGetTxId(Guid actionId, out TxId txId) =>
+            _transactions.TryGetValue(actionId, out txId) &&
+            IsTxStaged(txId);
+
+        public bool IsTxStaged(TxId txId) => blocks.GetStagedTransactionIds().Contains(txId);
+
         public FungibleAssetValue GetBalance(Address address, Currency currency) =>
             blocks.GetBalance(address, currency);
 
