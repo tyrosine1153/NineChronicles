@@ -1327,6 +1327,7 @@ GameObject:
   - component: {fileID: 1333831686}
   - component: {fileID: 1333831690}
   - component: {fileID: 1333831688}
+  - component: {fileID: 1333831689}
   m_Layer: 0
   m_Name: Stage
   m_TagString: Untagged
@@ -1363,6 +1364,7 @@ MonoBehaviour:
   selectedPlayer: {fileID: 0}
   foodCount: 0
   zone: 
+  lightController: {fileID: 1333831689}
   showLoadingScreen: 0
 --- !u!4 &1333831683
 Transform:
@@ -1661,6 +1663,19 @@ MonoBehaviour:
     endDelay: 0.2
     scaleUpTime: 1
     scaleOutTime: 1
+--- !u!114 &1333831689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333831681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d5c8839bae1442ba78c6bb48339b022, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  block: 0
 --- !u!114 &1333831690
 MonoBehaviour:
   m_ObjectHideFlags: 0

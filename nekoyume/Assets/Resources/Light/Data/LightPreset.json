@@ -2,11 +2,11 @@
   "backgroundGlobalLight": [
     {
       "name" : "chapter_01_01",
-      "lightType" : 1
+      "lightType" : 0
     },
     {
       "name" : "chapter_01_02",
-      "lightType" : 0
+      "lightType" : 1
     },
     {
       "name" : "chapter_01_03",

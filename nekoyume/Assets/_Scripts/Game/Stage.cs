@@ -13,6 +13,7 @@ using Nekoyume.Game.Character;
 using Nekoyume.Game.Controller;
 using Nekoyume.Game.Entrance;
 using Nekoyume.Game.Factory;
+using Nekoyume.Game.Light;
 using Nekoyume.Game.Trigger;
 using Nekoyume.Game.Util;
 using Nekoyume.Game.VFX;
@@ -67,6 +68,9 @@ namespace Nekoyume.Game
         public int foodCount;
         public string zone;
         public Animator roomAnimator { get; private set; }
+
+        [SerializeField]
+        private LightController lightController;
 
         private Camera _camera;
         private BattleLog _battleLog;
@@ -133,6 +137,7 @@ namespace Nekoyume.Game
         {
             objectPool.Initialize();
             dropItemFactory.Initialize();
+            lightController.Initialize();
             SkillController = new SkillController(objectPool);
             BuffController = new BuffController(objectPool);
             TutorialController = new TutorialController(MainCanvas.instance.Widgets);
@@ -284,6 +289,7 @@ namespace Nekoyume.Game
             }
             var lightPrefab = LightPalette.GetBackgroundGlobalLight(prefabName);
             _light = Instantiate(lightPrefab, background.transform);
+            lightController.GetSetters();
 
             foreach (Transform child in background.transform)
             {
