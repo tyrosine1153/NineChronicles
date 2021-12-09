@@ -8,23 +8,53 @@ namespace Nekoyume
 {
     public static class LightPalette
     {
-        private static List<GameObject> _objects;
+        private static List<GameObject> _globalLightObjects;
+        private static List<GameObject> _pointLightObjects;
         private static LightPreset _data;
+        private static LightPaletteScriptableObject _scriptableObject;
 
-        private static List<GameObject> Objects
+        private static LightPaletteScriptableObject ScriptableObject
         {
             get
             {
-                if (_objects != null)
+                if (_scriptableObject != null)
                 {
-                    return _objects;
+                    return _scriptableObject;
                 }
 
-                _objects = new List<GameObject>();
                 var path = Path.Combine("ScriptableObject", "UI_LightPalette");
-                var so  = Resources.Load<LightPaletteScriptableObject>(path);
-                _objects.AddRange(so.lights);
-                return _objects;
+                _scriptableObject = Resources.Load<LightPaletteScriptableObject>(path);
+                return _scriptableObject;
+            }
+        }
+
+        private static List<GameObject> GlobalLightObjects
+        {
+            get
+            {
+                if (_globalLightObjects != null)
+                {
+                    return _globalLightObjects;
+                }
+
+                _globalLightObjects = new List<GameObject>();
+                _globalLightObjects.AddRange(ScriptableObject.globalLights);
+                return _globalLightObjects;
+            }
+        }
+
+        private static List<GameObject> PointLightObjects
+        {
+            get
+            {
+                if (_pointLightObjects != null)
+                {
+                    return _pointLightObjects;
+                }
+
+                _pointLightObjects = new List<GameObject>();
+                _pointLightObjects.AddRange(ScriptableObject.pointLights);
+                return _pointLightObjects;
             }
         }
 
@@ -60,10 +90,22 @@ namespace Nekoyume
                 return null;
             }
 
-            var light = Objects[data.lightType];
+            var light = GlobalLightObjects[data.lightType];
             if (light == null)
             {
-                Debug.LogError($"[Light is not exist] light type : {data.lightType}");
+                Debug.LogError($"[Global light is not exist] light type : {data.lightType}");
+                return null;
+            }
+
+            return light;
+        }
+
+        public static GameObject GetPointLight(int id)
+        {
+            var light = PointLightObjects[id];
+            if (light == null)
+            {
+                Debug.LogError($"[Point light is not exist] id : {id}");
                 return null;
             }
 

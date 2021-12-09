@@ -63,8 +63,6 @@ namespace Nekoyume.Game.Light
         {
             _preBlock = block;
             var time = GetTime(block);
-            Debug.Log($"[time]: {time}");
-
             if (_setters is null)
             {
                 return;

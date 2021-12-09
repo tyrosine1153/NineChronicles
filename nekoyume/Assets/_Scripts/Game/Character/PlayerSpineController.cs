@@ -4,6 +4,7 @@ using Spine;
 using Spine.Unity;
 using Spine.Unity.AttachmentTools;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.Universal;
 
 namespace Nekoyume.Game.Character
 {
@@ -78,6 +79,7 @@ namespace Nekoyume.Game.Character
         private RegionAttachment _weaponAttachmentDefault;
         private GameObject _cachedWeaponVFX;
         private GameObject _currentWeaponVFXPrefab;
+        private Light2D _weaponPointLight;
 
         private readonly List<string> _attachmentNames = new List<string>();
 
@@ -155,6 +157,7 @@ namespace Nekoyume.Game.Character
             }
 
             Destroy(_cachedWeaponVFX);
+            Destroy(_weaponPointLight);
 
             if (!(weaponVFXPrefab is null))
             {
@@ -167,6 +170,11 @@ namespace Nekoyume.Game.Character
                 boneFollower.SkeletonRenderer = SkeletonAnimation;
                 boneFollower.SetBone(boneName);
                 _cachedWeaponVFX = parent;
+
+                var lightPrefab = LightPalette.GetPointLight(0);
+                var light = Instantiate(lightPrefab, parent.transform);
+                light.transform.localPosition = Vector3.zero;
+                _weaponPointLight = light.GetComponent<Light2D>();
             }
 
             UpdateInternal();

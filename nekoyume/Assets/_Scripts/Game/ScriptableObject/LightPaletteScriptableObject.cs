@@ -7,6 +7,9 @@ namespace Nekoyume
     public class LightPaletteScriptableObject : ScriptableObject
     {
         [SerializeField]
-        public List<GameObject> lights;
+        public List<GameObject> globalLights;
+
+        [SerializeField]
+        public List<GameObject> pointLights;
     }
 }
