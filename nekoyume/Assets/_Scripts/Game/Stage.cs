@@ -283,13 +283,8 @@ namespace Nekoyume.Game
             background = Instantiate(prefab, transform);
             background.name = prefabName;
 
-            if (_light)
-            {
-                DestroyImmediate(_light);
-            }
-            var lightPrefab = LightPalette.GetBackgroundGlobalLight(prefabName);
-            _light = Instantiate(lightPrefab, background.transform);
-            lightController.GetSetters();
+            // todo : to be applied later
+            // LoadLight(prefabName);
 
             foreach (Transform child in background.transform)
             {
@@ -309,6 +304,18 @@ namespace Nekoyume.Game
                 }
             }
         }
+
+        private void LoadLight(string prefabName)
+        {
+            if (_light)
+            {
+                DestroyImmediate(_light);
+            }
+            var lightPrefab = LightPalette.GetBackgroundGlobalLight(prefabName);
+            _light = Instantiate(lightPrefab, background.transform);
+            lightController.GetSetters();
+        }
+
 
         public void PlayStage(BattleLog log)
         {

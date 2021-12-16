@@ -157,7 +157,9 @@ namespace Nekoyume.Game.Character
             }
 
             Destroy(_cachedWeaponVFX);
-            Destroy(_weaponPointLight);
+
+            // todo : to be applied later
+            // Destroy(_weaponPointLight);
 
             if (!(weaponVFXPrefab is null))
             {
@@ -171,10 +173,11 @@ namespace Nekoyume.Game.Character
                 boneFollower.SetBone(boneName);
                 _cachedWeaponVFX = parent;
 
-                var lightPrefab = LightPalette.GetPointLight(0);
-                var light = Instantiate(lightPrefab, parent.transform);
-                light.transform.localPosition = Vector3.zero;
-                _weaponPointLight = light.GetComponent<Light2D>();
+                // todo : to be applied later
+                // var lightPrefab = LightPalette.GetPointLight(0);
+                // var light = Instantiate(lightPrefab, parent.transform);
+                // light.transform.localPosition = Vector3.zero;
+                // _weaponPointLight = light.GetComponent<Light2D>();
             }
 
             UpdateInternal();
