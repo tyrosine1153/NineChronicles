@@ -18,7 +18,7 @@ MonoBehaviour:
   m_TransparencySortAxis: {x: 0, y: 1, z: 0}
   m_HDREmulationScale: 1.33
   m_LightBlendStyles:
-  - name: Blend Style 0
+  - name: Background
     maskTextureChannel: 0
     renderTextureScale: 0.5
     blendMode: 1
