@@ -59,6 +59,7 @@ namespace Nekoyume.Game
                 sr.drawMode = spriteRenderer.drawMode;
                 sr.tileMode = spriteRenderer.tileMode;
                 sr.size = spriteRenderer.size;
+                sr.material = spriteRenderer.material;
                 if (animator != null)
                 {
                     var ani = go.AddComponent<Animator>();
