@@ -47,6 +47,8 @@ jobs:
           "$GITHUB_SHA"
 
       - name: Build Unity Player using docker
+        env:
+          DISPLAY: 0
         run: |
           docker run \
             --env ULF="${{ secrets.ULF_2020_3_0_F1 }}" \

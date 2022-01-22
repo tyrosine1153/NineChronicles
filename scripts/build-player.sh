@@ -22,7 +22,7 @@ title "Unity license"
 install_license
 
 title "Build binary"
-/opt/unity/Editor/Unity \
+xvfb-run /opt/unity/Editor/Unity \
   -quit \
   -batchmode \
   -nographics \
