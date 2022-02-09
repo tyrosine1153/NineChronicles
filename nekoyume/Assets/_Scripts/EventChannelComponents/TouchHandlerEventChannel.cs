@@ -26,6 +26,18 @@ namespace Nekoyume.EventChannelComponents
         private void Awake()
         {
             _touchHandler = GetComponent<TouchHandler>();
+            _touchHandler.OnEnter
+                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.Enter))
+                .AddTo(gameObject);
+            _touchHandler.OnLeftDown
+                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.LeftDown))
+                .AddTo(gameObject);
+            _touchHandler.OnMiddleDown
+                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.MiddleDown))
+                .AddTo(gameObject);
+            _touchHandler.OnRightDown
+                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.RightDown))
+                .AddTo(gameObject);
             _touchHandler.OnClick
                 .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.Click))
                 .AddTo(gameObject);
@@ -41,21 +53,14 @@ namespace Nekoyume.EventChannelComponents
             _touchHandler.OnRightClick
                 .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.RightClick))
                 .AddTo(gameObject);
-            _touchHandler.OnLeftDown
-                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.LeftDown))
-                .AddTo(gameObject);
-            _touchHandler.OnMiddleDown
-                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.MiddleDown))
-                .AddTo(gameObject);
-            _touchHandler.OnRightDown
-                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.RightDown))
+            _touchHandler.OnExit
+                .Subscribe(eventData => OnEvent(eventData, TouchHandler.EventType.Exit))
                 .AddTo(gameObject);
         }
 
         private void OnEvent(PointerEventData eventData, TouchHandler.EventType eventType)
         {
-            Debug.Log($"[TouchHandlerEventChannel] OnEvent({eventData}, {eventType})");
-
+            // Debug.Log($"[TouchHandlerEventChannel] OnEvent({eventData}, {eventType})");
             foreach (var eventSetting in _eventSettings)
             {
                 if (eventSetting.When != eventType)
