@@ -39,12 +39,8 @@ namespace BalanceTool.Editor
         {
             minSize = new Vector2(300f, 300f);
             _avatarIndex = 0;
-            (
-                _,
-                _agentAddr,
-                _,
-                _prevStates) = InitializeUtil.InitializeStates(
-                avatarIndex: _avatarIndex);
+            (_, _agentAddr, _, _prevStates) =
+                InitializeUtil.InitializeStates(avatarIndex: _avatarIndex);
 
             _playDataCsvScrollPos = Vector2.zero;
             _outputScrollPos = Vector2.zero;

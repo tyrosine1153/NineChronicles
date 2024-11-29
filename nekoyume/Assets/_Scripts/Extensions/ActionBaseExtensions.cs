@@ -20,10 +20,6 @@ namespace Nekoyume
 
         public static void LogEvent(this EventBase e, int eventIndex, int eventCount)
         {
-#if !DEBUG_USE
-            return;
-#endif
-
             var sb = new System.Text.StringBuilder();
 
             switch (e)
